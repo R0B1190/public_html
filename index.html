@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" media="all" href="styles.css">
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
+    <script src ="rainbow.js" defer></script>
     <style>
-        /* Custom navigation button styles for index.html */
         #tswcssbuttons ul {
             list-style-type: none;
             padding: 0;
@@ -20,30 +20,25 @@
 
         #tswcssbuttons li a {
             display: block;
-            padding: 15px;
-            margin-bottom: 10px;
-            background-color: #e6f9ee; /* Very light green */
-            color: #046a38; /* Dark green text */
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f0f0f0;
+            color: #333;
             text-decoration: none;
-            border: 2px solid #046a38; /* Dark green border */
-            border-radius: 0; /* Square corners */
-            transition: all 0.3s ease;
+            border-radius: 5px;
+            transition: background-color 0.2s ease-in-out;
             text-align: center;
-            font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
-            text-transform: uppercase;
         }
 
         #tswcssbuttons li a:hover {
-            background-color: #088f45; /* Darker green */
-            color: white;
-            border-color: #088f45;
+            background-color: #ddd;
         }
 
+        /* Style for the active page link on index.html */
         #tswcssbuttons a[href="index.html"] {
             background-color: #088f45; /* A darker shade of the page background */
             color: white;
-            border-color: #088f45;
         }
     </style>
 </head>
@@ -55,7 +50,7 @@
             <!-- start of header section: insert your logo, etc, here -->
 
             <p>
-                ()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+                
             </p>
             <p>&nbsp;</p>
 
@@ -70,12 +65,14 @@
                 <p>
                     <img src="images/rock-apple.png" class="wide">
                     <img src="images/rock-apple.png" class="wide">
-                    <video width="640" height="360" loop autoplay mute>
+                    <video max-width="640" max-height="360" loop autoplay mute>
                         <source src="images/videoplayback.mp4" type="video/mp4">
                     </video>
                     <audio loop autoplay>
                         <source src="images/Sneaky-Snitch.mp3" type="audio/mpeg">
                     </audio>
+                    <input type="text" id="my-input">
+                    <button onclick="onlmbclick(event)">change color</button>
                 </p>
                 <p>
                     
@@ -102,8 +99,8 @@
                 <div id="tswcssbuttons">
                     <ul>
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="aboutme.html">About me</a></li>
-                        <li><a href="projects.html">Projects</a></li>
+                        <li><a href="aboutme.html">Page 2</a></li>
+                        <li><a href="projects.html">Game</a></li>
                     </ul>
                 </div>
 
