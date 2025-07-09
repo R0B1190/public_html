@@ -1,0 +1,100 @@
+:root {
+    --primary-color: #ffa600;
+    --background: #f0f0f0;
+    --text-color: #1b1b1b;
+    --text-on-primary: #ffffff;
+    --neumorphic-shadow: 5px 5px 8px #c7c7c7, -5px -5px 8px #ffffff;
+    --neumorphic-shadow-inset: inset 5px 5px 8px #c7c7c7, inset -5px -5px 8px #ffffff;
+    --border-radius: 50px;
+    --spacing: 25px;
+    --color-1: #ff9100;
+    --color-2: #0084ff;
+    --color-3: #00ffb3;
+    --color-4: #9900ff;
+}
+
+body {
+    font-family: Roboto, Helvetica, sans-serif;
+    background-color: var(--background);
+}
+
+.container {
+    width: 100%;
+    justify-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.sidebar {
+    background-color: var(--background);
+    margin: 1%;
+    position: sticky;
+    justify-items: center;
+    align-items: center;
+    width: 50%;
+    border-radius: 5%;
+    box-shadow: var(--neumorphic-shadow-inset);
+}
+
+.cell-holder {
+    margin: 1%;
+    position: sticky;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    width: 50%;
+    aspect-ratio: 1/1;
+    gap: 8px;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background);
+    border-radius: 25%;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: large;
+    overflow-wrap: anywhere;
+    box-shadow: var(--neumorphic-shadow);
+    cursor: pointer;
+}
+
+.cell.selected {
+    background-color: var(--background);
+    color: var(--text-color);
+    box-shadow: var(--neumorphic-shadow-inset);
+    cursor: pointer;
+}
+
+
+#words {
+    display: list-item;
+    font-size: large;
+}
+
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background);
+    border-radius: 50px;
+    border: 0px;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: large;
+    overflow-wrap: anywhere;
+    box-shadow: var(--neumorphic-shadow);
+    cursor: pointer;
+}
+
+button:active {
+    box-shadow: var(--neumorphic-shadow-inset);
+}
+
+@media only screen and (max-width: 629px) {
+    .cell {
+        font-size: xx-small;
+    }
+}

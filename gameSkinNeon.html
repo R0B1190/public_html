@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Game</title>
+    <title>Projects</title>
     <meta name="generator" content="thesitewizard.com's Layout Wizard 4.0.0">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="all" href="styles.css">
@@ -43,22 +43,21 @@
         #game-container {
             width: 800px;
             height: 600px;
-            background-color: #dcdcdc; /* Light grey canvas */
-            border: 4px solid;
-            border-color: #f0f0f0 #bababa #bababa #f0f0f0; /* Beveled edge */
+            border: 2px solid #e94560;
             position: relative; /* Crucial for positioning the child element */
+            background-color: #1a1a2e; /* Dark blue background */
             margin: 20px auto; /* Center the container */
-            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5), inset 0 0 15px rgba(26, 26, 46, 0.9);
             overflow: hidden; /* Keeps player glow inside */
         }
 
         #player-circle {
             width: 50px;
             height: 50px;
-            background: radial-gradient(circle at 15px 15px, #66b3ff, #0059b3); /* Shiny sphere effect */
+            background-color: #00f5d4; /* Neon cyan */
             border-radius: 50%;
             position: absolute; /* Position relative to the container */
-            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.4); /* Drop shadow */
+            box-shadow: 0 0 15px #00f5d4, 0 0 25px #00f5d4; /* Glow effect */
             transition: height 0.1s ease-in-out; /* Smooth squish on height only */
             will-change: left, top; /* Performance optimization hint for movement */
             /* Start in the middle */
@@ -72,24 +71,22 @@
             height: 0;
             border-left: 25px solid transparent;
             border-right: 25px solid transparent;
-            border-bottom: 50px solid #c00; /* Solid red */
+            border-bottom: 50px solid #e94560; /* Neon red/pink */
             position: absolute;
             bottom: 0;
             left: 300px;
             display: none; /* Hidden until game starts */
-            filter: drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.5)); /* More realistic shadow */
+            filter: drop-shadow(0 3px 5px rgba(233, 69, 96, 0.7));
             will-change: left; /* Performance optimization hint for movement */
         }
 
         #obstacle-rectangle {
             width: 100px;
             height: 570px;
-            background: linear-gradient(to right, #d00, #a00); /* Gradient for shape */
-            border-left: 2px solid #f33; /* Highlight */
-            border-right: 2px solid #800; /* Shadow */
-            box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.4);
+            background-color: #e94560; /* Neon red/pink */
             position: absolute;
             display: none; /* Hidden until game starts */
+            box-shadow: 0 0 10px #e94560;
             will-change: left; /* Performance optimization hint for movement */
         }
 
@@ -99,7 +96,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(200, 200, 200, 0.7); /* Lighter overlay */
+            background: rgba(26, 26, 46, 0.8); /* Darker, matching background */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -109,25 +106,19 @@
         #start-button {
             padding: 15px 30px;
             font-size: 2em;
-            font-weight: bold;
             cursor: pointer;
-            color: #333;
-            background-color: #f0f0f0;
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
+            border: 2px solid #00f5d4;
             border-radius: 10px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            transition: all 0.1s ease;
+            background-color: transparent;
+            color: #00f5d4;
+            text-shadow: 0 0 5px #00f5d4;
+            transition: all 0.3s ease;
         }
 
         #start-button:hover {
-            background-color: #fff;
-        }
-
-        #start-button:active {
-            transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            background-color: #00f5d4;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px #00f5d4;
         }
 
         #score {
@@ -136,12 +127,11 @@
             left: 10px;
             font-size: 1.5em;
             font-weight: bold;
-            color: #333;
+            color: #f0f0f0;
             z-index: 5;
             display: none; /* Hidden until game starts */
-            text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.7); /* Subtle shadow for readability */
+            text-shadow: 0 0 5px #ffffff, 0 0 10px #00f5d4;
         }
-
         .skin-button {
             display: inline-block;
             padding: 10px 20px;
@@ -202,10 +192,9 @@
                     <div id="obstacle-triangle"></div>
                     <div id="obstacle-rectangle"></div>
                 </div>
-
                 <h2>Skins</h2>
                 <a href="gameSkinClassic.html" class="skin-button">Classic</a>
-                <a href="gameSkinNeon.html" class="skin-button">Neon</a>
+                <a href="projects.html" class="skin-button">Default</a>
 
                 <!-- end of content column: put your content above this line -->
             </div>
