@@ -58,6 +58,59 @@
             /* Start in the middle */
             top: calc(50% - 25px);
             left: calc(50% - 25px);
+            display: none; /* Hidden until game starts */
+        }
+
+        #obstacle-triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid red;
+            position: absolute;
+            bottom: 0;
+            left: 300px;
+            display: none; /* Hidden until game starts */
+        }
+
+        #obstacle-rectangle {
+            width: 100px;
+            height: 570px;
+            background-color: red;
+            position: absolute;
+            display: none; /* Hidden until game starts */
+        }
+
+        #start-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10; /* Make sure it's on top */
+        }
+
+        #start-button {
+            padding: 15px 30px;
+            font-size: 2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            z-index: 5;
+            display: none; /* Hidden until game starts */
         }
     </style>
 </head>
@@ -82,10 +135,16 @@
                 <!-- start of content column: insert your content here -->
 
                 <h1>Game</h1>
-                <p>Use the arrow keys (or W, A, S, D) to move the blue circle inside the box.</p>
+                <p>Use A/D or Left/Right arrow keys to move. Use W or the Up arrow key to jump.</p>
 
                 <div id="game-container">
+                    <div id="score">Score: 0</div>
+                    <div id="start-menu">
+                        <button id="start-button">Start Game</button>
+                    </div>
                     <div id="player-circle"></div>
+                    <div id="obstacle-triangle"></div>
+                    <div id="obstacle-rectangle"></div>
                 </div>
 
                 <!-- end of content column: put your content above this line -->
@@ -125,65 +184,300 @@
     <script>
         const player = document.getElementById('player-circle');
         const container = document.getElementById('game-container');
+        const startMenu = document.getElementById('start-menu');
+        const startButton = document.getElementById('start-button');
+        const obstacle = document.getElementById('obstacle-triangle');
+        const obstacleRectElement = document.getElementById('obstacle-rectangle');
+        const scoreDisplay = document.getElementById('score');
         
-        // Get dimensions once, as they are static in this example
-        const playerRect = player.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-
         // Player state
-        let x = player.offsetLeft;
-        let y = player.offsetTop;
-        const speed = 4; // A lower speed feels better with a game loop
+        let x;
+        let y;
+        let vy = 0; // Vertical velocity
+        const moveSpeed = 5;
+        const gravity = 0.5;
+        const jumpStrength = 12;
+        let isOnGround = false;
+        let isSquished = false;
 
-        // Key state tracking
+        // Game state
+        let score = 0;
+        let scoreInterval;
+        let animationFrameId;
+
+        // Obstacle state
+        let obstacleX;
+        let obstacleSpeed;
+        let obstacleDirection = 1; // 1 for right, -1 for left
+
+        // New obstacle state
+        let rectObstacleX, rectObstacleY;
+        const rectObstacleSpeed = 2; // Same speed as the triangle
+        let rectObstacleDirection = -1; // Start moving left
+
+
+        // Key state tracking for movement
         const keysPressed = {};
 
-        // Event listeners to track which keys are pressed
         document.addEventListener('keydown', (event) => {
-            keysPressed[event.key.toLowerCase()] = true;
+            const key = event.key.toLowerCase();
+            keysPressed[key] = true;
         });
 
         document.addEventListener('keyup', (event) => {
             keysPressed[event.key.toLowerCase()] = false;
         });
 
-        function gameLoop() {
-            // Determine movement direction based on pressed keys
-            let dx = 0;
-            let dy = 0;
+        function endGame() {
+            clearInterval(scoreInterval);
+            cancelAnimationFrame(animationFrameId);
+            startMenu.style.display = 'flex';
+            startButton.textContent = 'Play Again';
+        }
 
-            if (keysPressed['w'] || keysPressed['arrowup']) dy -= 1;
-            if (keysPressed['s'] || keysPressed['arrowdown']) dy += 1;
+        function checkPreciseCollision(currentObstacleX, squished) {
+            // --- Player Circle Properties ---
+            const playerWidth = player.offsetWidth;
+            const playerHeight = player.offsetHeight;
+            let playerRadius, playerCenterX, playerCenterY;
+
+            if (squished) {
+                // Approximate squished ellipse with a smaller circle for collision
+                playerRadius = playerHeight / 2; // e.g., 12.5
+                playerCenterX = x + playerWidth / 2;
+                playerCenterY = y + playerHeight / 2;
+            } else {
+                // Normal circle
+                playerRadius = playerWidth / 2; // e.g., 25
+                playerCenterX = x + playerRadius;
+                playerCenterY = y + playerRadius;
+            }
+
+            const circle = { x: playerCenterX, y: playerCenterY, r: playerRadius };
+
+            // --- Obstacle Triangle Properties ---
+            // We get these from the obstacle's known position and CSS dimensions
+            const obstacleX = currentObstacleX;
+            const obstacleY = obstacle.offsetTop;
+            const obstacleWidth = obstacle.offsetWidth;
+            const obstacleHeight = obstacle.offsetHeight; // This is 50
+
+            // Define the triangle's vertices based on its position
+            const v1 = { x: obstacleX + obstacleWidth / 2, y: obstacleY }; // Top vertex
+            const v2 = { x: obstacleX, y: obstacleY + obstacleHeight }; // Bottom-left
+            const v3 = { x: obstacleX + obstacleWidth, y: obstacleY + obstacleHeight }; // Bottom-right
+
+            // --- Collision Detection Logic ---
+
+            // Helper to calculate squared distance (faster than using Math.sqrt)
+            function distanceSquared(p1, p2) {
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                return dx * dx + dy * dy;
+            }
+
+            // Helper to find the closest point on a line segment to the circle's center
+            function closestPointOnSegment(p, a, b) {
+                const ap = { x: p.x - a.x, y: p.y - a.y };
+                const ab = { x: b.x - a.x, y: b.y - a.y };
+                const ab2 = ab.x * ab.x + ab.y * ab.y;
+                const ap_dot_ab = ap.x * ab.x + ap.y * ab.y;
+                const t = Math.max(0, Math.min(1, ap_dot_ab / ab2)); // Clamp to segment
+                return { x: a.x + ab.x * t, y: a.y + ab.y * t };
+            }
+
+            // 1. Check distance from circle center to each edge of the triangle
+            const edges = [[v1, v2], [v2, v3], [v3, v1]];
+            for (const edge of edges) {
+                const closestPoint = closestPointOnSegment(circle, edge[0], edge[1]);
+                if (distanceSquared(circle, closestPoint) < circle.r * circle.r) {
+                    return true; // Collision with an edge
+                }
+            }
+
+            // 2. Check if the circle's center is inside the triangle (for containment cases)
+            const d1 = (circle.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (circle.y - v2.y);
+            const d2 = (circle.x - v3.x) * (v2.y - v3.y) - (v2.x - v3.x) * (circle.y - v3.y);
+            const d3 = (circle.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (circle.y - v1.y);
+            const has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            const has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+            return !(has_neg && has_pos);
+        }
+
+        function checkRectangleCollision(rectX, rectY, squished) {
+            // --- Player Circle Properties (same as in triangle collision) ---
+            const playerWidth = player.offsetWidth;
+            const playerHeight = player.offsetHeight;
+            let playerRadius, playerCenterX, playerCenterY;
+
+            if (squished) {
+                playerRadius = playerHeight / 2;
+                playerCenterX = x + playerWidth / 2;
+                playerCenterY = y + playerHeight / 2;
+            } else {
+                playerRadius = playerWidth / 2;
+                playerCenterX = x + playerRadius;
+                playerCenterY = y + playerRadius;
+            }
+
+            // --- Rectangle Obstacle Properties ---
+            const rectWidth = obstacleRectElement.offsetWidth;
+            const rectHeight = obstacleRectElement.offsetHeight;
+
+            // --- Circle-Rectangle Collision Logic ---
+            // Find the closest point on the rectangle to the circle's center
+            const closestX = Math.max(rectX, Math.min(playerCenterX, rectX + rectWidth));
+            const closestY = Math.max(rectY, Math.min(playerCenterY, rectY + rectHeight));
+
+            // Calculate the squared distance between the circle's center and this closest point
+            const distanceX = playerCenterX - closestX;
+            const distanceY = playerCenterY - closestY;
+            return (distanceX * distanceX) + (distanceY * distanceY) < (playerRadius * playerRadius);
+        }
+
+        function gameLoop() {
+            // --- Squish Logic ---
+            const wantsToSquish = keysPressed['s'] || keysPressed['arrowdown'];
+            if (wantsToSquish && !isSquished && isOnGround) {
+                isSquished = true;
+                player.style.height = '25px';
+                y += 25; // Move top down to keep bottom in place
+            } else if (!wantsToSquish && isSquished) {
+                // Only unsquish if there's enough space above
+                // (y is the top of the player, 0 is the ceiling)
+                if (y >= 25) {
+                    isSquished = false;
+                    player.style.height = '50px';
+                    y -= 25; // Move top up to keep bottom in place
+                }
+            }
+
+            // Jump check - moved here for input buffering
+            if ((keysPressed['w'] || keysPressed['arrowup']) && isOnGround) {
+                vy = -jumpStrength;
+                isOnGround = false;
+
+                // Automatically un-squish when jumping
+                if (isSquished) {
+                    isSquished = false;
+                    player.style.height = '50px';
+                    y -= 25; // Adjust position to grow upwards
+                }
+            }
+
+            // Horizontal movement
+            let dx = 0;
             if (keysPressed['a'] || keysPressed['arrowleft']) dx -= 1;
             if (keysPressed['d'] || keysPressed['arrowright']) dx += 1;
 
-            // Normalize the vector for consistent diagonal speed
-            if (dx !== 0 && dy !== 0) {
-                const length = Math.sqrt(dx * dx + dy * dy);
-                dx = (dx / length);
-                dy = (dy / length);
-            }
+            x += dx * moveSpeed;
 
-            // Apply speed to the direction
-            x += dx * speed;
-            y += dy * speed;
+            // Apply gravity
+            vy += gravity;
+            y += vy;
 
             // Enforce container boundaries
-            const maxX = containerRect.width - playerRect.width;
-            const maxY = containerRect.height - playerRect.height;
+            const maxX = container.clientWidth - player.offsetWidth;
+            const maxY = container.clientHeight - player.offsetHeight;
+
+            // Horizontal boundaries
             x = Math.max(0, Math.min(maxX, x));
-            y = Math.max(0, Math.min(maxY, y));
+
+            // Vertical boundaries (ground check)
+            if (y >= maxY) {
+                y = maxY;
+                vy = 0;
+                isOnGround = true;
+            } else {
+                isOnGround = false;
+            }
+
+            // Vertical boundaries (ceiling check)
+            if (y < 0) {
+                y = 0;
+                vy = 0; // Stop upward movement if it hits the ceiling
+            }
 
             // Update the player's position on the screen
             player.style.left = `${x}px`;
             player.style.top = `${y}px`;
 
+            // --- Obstacle Movement ---
+            obstacleX += obstacleSpeed * obstacleDirection;
+            const obstacleMaxX = container.clientWidth - obstacle.offsetWidth;
+            if (obstacleX <= 0) {
+                obstacleX = 0;
+                obstacleDirection = 1; // Move right
+            } else if (obstacleX >= obstacleMaxX) {
+                obstacleX = obstacleMaxX;
+                obstacleDirection = -1; // Move left
+            }
+            obstacle.style.left = `${obstacleX}px`;
+
+            // --- Rectangle Obstacle Movement ---
+            rectObstacleX += rectObstacleSpeed * rectObstacleDirection;
+            const rectObstacleMaxX = container.clientWidth - obstacleRectElement.offsetWidth;
+            if (rectObstacleX <= 0) {
+                rectObstacleX = 0;
+                rectObstacleDirection = 1; // Move right
+            } else if (rectObstacleX >= rectObstacleMaxX) {
+                rectObstacleX = rectObstacleMaxX;
+                rectObstacleDirection = -1; // Move left
+            }
+            obstacleRectElement.style.left = `${rectObstacleX}px`;
+            obstacleRectElement.style.top = `${rectObstacleY}px`;
+
+            // --- Collision Checks ---
+            if (checkPreciseCollision(obstacleX, isSquished)) {
+                endGame();
+                return; // Stop the game loop
+            }
+            if (checkRectangleCollision(rectObstacleX, rectObstacleY, isSquished)) {
+                endGame();
+                return; // Stop the game loop
+            }
+
             // Continue the loop
-            requestAnimationFrame(gameLoop);
+            animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        // Start the game loop
-        gameLoop();
+        // Start the game when the button is clicked
+        startButton.addEventListener('click', () => {
+            startMenu.style.display = 'none';
+            player.style.display = 'block';
+            obstacle.style.display = 'block';
+            obstacleRectElement.style.display = 'block';
+            scoreDisplay.style.display = 'block';
+            startButton.textContent = 'Start Game'; // Reset button text
+
+            // Set initial player position to the center of the container
+            x = (container.clientWidth - player.offsetWidth) / 2;
+            y = (container.clientHeight - player.offsetHeight) / 2;
+            isSquished = false;
+            player.style.height = '50px'; // Ensure player is not squished on restart
+
+            // Reset obstacle
+            obstacleX = 0; // Initial horizontal position, starts on the left
+            obstacleSpeed = 2; // Reset to initial speed
+            obstacleDirection = 1; // Start moving right
+
+            // Reset rectangle obstacle
+            rectObstacleY = 0; // Positioned from the top to be un-jumpable
+            rectObstacleX = container.clientWidth - obstacleRectElement.offsetWidth; // Start on the right
+            rectObstacleDirection = -1; // Start moving left
+
+            // Reset and start score
+            score = 0;
+            scoreDisplay.textContent = `Score: ${score}`;
+            clearInterval(scoreInterval); // Ensure no previous interval is running
+            scoreInterval = setInterval(() => {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                obstacleSpeed += 0.1; // Increase triangle speed every second
+            }, 1000); // Update score every second
+
+            gameLoop();
+        });
     </script>
 </body>
 
