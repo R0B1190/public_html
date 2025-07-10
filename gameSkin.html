@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
     <style>
-        /* Style for the active page link on projects.html */
-        #tswcssbuttons a[href="projects.html"] {
+        /* Style for the active page link on gameSkin.html */
+        #tswcssbuttons a[href="gameSkin.html"] {
             background-color: #a25b09; /* A darker shade of the page background */
             color: white;
         }
@@ -143,6 +143,53 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Dark shadow for contrast */
         }
 
+        /* --- Mobile Controls --- */
+        #mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 20;
+            display: none; /* Hidden until game starts, set to 'flex' by JS */
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none; /* Let clicks pass through the container */
+        }
+
+        .control-cluster {
+            display: flex;
+            gap: 20px;
+            pointer-events: all; /* But not through the clusters */
+        }
+
+        #action-controls {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
+            border: 2px solid;
+            border-color: #fff #aaa #aaa #fff;
+            border-radius: 50%; /* Circular buttons */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .control-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
+            border-color: #aaa #fff #fff #aaa;
+        }
+
         .skin-button {
             display: inline-block;
             padding: 10px 20px;
@@ -202,6 +249,16 @@
                     <div id="player-circle"></div>
                     <div id="obstacle-triangle"></div>
                     <div id="obstacle-rectangle"></div>
+                    <div id="mobile-controls">
+                        <div class="control-cluster" id="movement-controls">
+                            <button id="btn-left" class="control-btn">◀</button>
+                            <button id="btn-right" class="control-btn">▶</button>
+                        </div>
+                        <div class="control-cluster" id="action-controls">
+                            <button id="btn-up" class="control-btn">▲</button>
+                            <button id="btn-down" class="control-btn">▼</button>
+                        </div>
+                    </div>
                 </div>
 
                 <h2>Skins</h2>
@@ -253,6 +310,12 @@
         const obstacle = document.getElementById('obstacle-triangle');
         const obstacleRectElement = document.getElementById('obstacle-rectangle');
         const scoreDisplay = document.getElementById('score');
+        const mobileControls = document.getElementById('mobile-controls');
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnUp = document.getElementById('btn-up');
+        const btnDown = document.getElementById('btn-down');
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         
         // Player state
         let x;
@@ -292,10 +355,37 @@
             keysPressed[event.key.toLowerCase()] = false;
         });
 
+        // Handle page visibility to prevent score from increasing in the background
+        document.addEventListener('visibilitychange', () => {
+            const isGameActive = startMenu.style.display === 'none';
+
+            if (!isGameActive) {
+                return; // Game is not running, do nothing.
+            }
+
+            if (document.hidden) {
+                // Tab is hidden, pause the game logic and score.
+                cancelAnimationFrame(animationFrameId);
+                clearInterval(scoreInterval);
+            } else {
+                // Tab is visible again, resume the game.
+                // Restart the score interval.
+                scoreInterval = setInterval(() => {
+                    score++;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    obstacleSpeed += 0.1; // Increase triangle speed every second
+                }, 2000); // Update score every 2 seconds
+
+                // Resume the game loop.
+                gameLoop();
+            }
+        });
+
         function endGame() {
             clearInterval(scoreInterval);
             cancelAnimationFrame(animationFrameId);
             startMenu.style.display = 'flex';
+            if (isTouchDevice) mobileControls.style.display = 'none';
             startButton.textContent = 'Play Again';
         }
 
@@ -512,6 +602,7 @@
             obstacle.style.display = 'block';
             obstacleRectElement.style.display = 'block';
             scoreDisplay.style.display = 'block';
+            if (isTouchDevice) mobileControls.style.display = 'flex';
             startButton.textContent = 'Start Game'; // Reset button text
 
             // Set initial player position to the center of the container
@@ -542,6 +633,31 @@
 
             gameLoop();
         });
+
+        // --- Mobile Control Setup ---
+        function setupControlButton(button, key) {
+            const press = (e) => {
+                e.preventDefault();
+                keysPressed[key] = true;
+            };
+            const release = (e) => {
+                e.preventDefault();
+                keysPressed[key] = false;
+            };
+
+            button.addEventListener('mousedown', press);
+            button.addEventListener('mouseup', release);
+            button.addEventListener('mouseleave', release); // Handle mouse leaving button while pressed
+            button.addEventListener('touchstart', press, { passive: false }); // passive:false allows preventDefault
+            button.addEventListener('touchend', release);
+        }
+
+        if (isTouchDevice) {
+            setupControlButton(btnLeft, 'arrowleft');
+            setupControlButton(btnRight, 'arrowright');
+            setupControlButton(btnUp, 'arrowup');
+            setupControlButton(btnDown, 'arrowdown');
+        }
     </script>
 </body>
 
