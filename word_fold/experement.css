@@ -29,11 +29,13 @@ body {
     background-color: var(--background);
     margin: 1%;
     position: sticky;
-    justify-items: center;
     align-items: center;
     width: 50%;
     border-radius: 5%;
     box-shadow: var(--neumorphic-shadow-inset);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
 }
 
 .cell-holder {
@@ -89,8 +91,24 @@ button {
     cursor: pointer;
 }
 
+.sidebar button {
+    margin-top: var(--spacing);
+}
+
 button:active {
     box-shadow: var(--neumorphic-shadow-inset);
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: var(--spacing);
+}
+
+.button-group button {
+    margin-top: 0;
 }
 
 @media only screen and (max-width: 629px) {

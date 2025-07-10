@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Neon</title>
+    <title>Game</title>
     <meta name="generator" content="thesitewizard.com's Layout Wizard 4.0.0">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="all" href="styles.css">
@@ -12,10 +12,8 @@
     <style>
         /* Style for the active page link on projects.html */
         #tswcssbuttons a[href="projects.html"] {
-            background-color: #00f5d4;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px #00f5d4;
-            border-color: #00f5d4;
+            background-color: #a25b09; /* A darker shade of the page background */
+            color: white;
         }
 
         #tswcssbuttons ul {
@@ -28,46 +26,40 @@
             display: block;
             padding: 12px;
             margin-bottom: 8px;
-            background-color: transparent;
-            color: #00f5d4;
+            background-color: #f0f0f0;
+            color: #333;
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            border-radius: 5px;
+            transition: background-color 0.2s ease-in-out;
             text-align: center;
             font-weight: bold;
-            border: 2px solid #00f5d4;
-            text-shadow: 0 0 5px #00f5d4;
         }
 
         #tswcssbuttons li a:hover {
-            background-color: #00f5d4;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px #00f5d4;
-        }
-
-        #tswcssbuttons li a:active {
-            transform: scale(0.98);
+            background-color: #ddd;
         }
 
         /* --- Game Styles --- */
         #game-container {
             width: 800px;
             height: 600px;
-            border: 2px solid #e94560;
+            background-color: #444; /* Dark grey canvas */
+            border: 4px solid;
+            border-color: #2a2a2a; /* Dark border */
             position: relative; /* Crucial for positioning the child element */
-            background-color: #1a1a2e; /* Dark blue background */
             margin: 20px auto; /* Center the container */
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5), inset 0 0 15px rgba(26, 26, 46, 0.9);
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
             overflow: hidden; /* Keeps player glow inside */
+            border-radius: 15px; /* Rounded corners */
         }
 
         #player-circle {
             width: 50px;
             height: 50px;
-            background-color: #00f5d4; /* Neon cyan */
+            background: radial-gradient(circle at 15px 15px, #66b3ff, #0059b3); /* Shiny sphere effect */
             border-radius: 50%;
             position: absolute; /* Position relative to the container */
-            box-shadow: 0 0 15px #00f5d4, 0 0 25px #00f5d4; /* Glow effect */
+            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.4); /* Drop shadow */
             transition: height 0.1s ease-in-out; /* Smooth squish on height only */
             will-change: left, top; /* Performance optimization hint for movement */
             /* Start in the middle */
@@ -81,22 +73,24 @@
             height: 0;
             border-left: 25px solid transparent;
             border-right: 25px solid transparent;
-            border-bottom: 50px solid #e94560; /* Neon red/pink */
+            border-bottom: 50px solid #c00; /* Solid red */
             position: absolute;
             bottom: 0;
             left: 300px;
             display: none; /* Hidden until game starts */
-            filter: drop-shadow(0 3px 5px rgba(233, 69, 96, 0.7));
+            filter: drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.5)); /* More realistic shadow */
             will-change: left; /* Performance optimization hint for movement */
         }
 
         #obstacle-rectangle {
             width: 100px;
             height: 570px;
-            background-color: #e94560; /* Neon red/pink */
+            background: linear-gradient(to right, #d00, #a00); /* Gradient for shape */
+            border-left: 2px solid #f33; /* Highlight */
+            border-right: 2px solid #800; /* Shadow */
+            box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.4);
             position: absolute;
             display: none; /* Hidden until game starts */
-            box-shadow: 0 0 10px #e94560;
             will-change: left; /* Performance optimization hint for movement */
         }
 
@@ -106,7 +100,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(26, 26, 46, 0.8); /* Darker, matching background */
+            background: rgba(200, 200, 200, 0.7); /* Lighter overlay */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -116,19 +110,25 @@
         #start-button {
             padding: 15px 30px;
             font-size: 2em;
+            font-weight: bold;
             cursor: pointer;
-            border: 2px solid #00f5d4;
+            color: #333;
+            background-color: #f0f0f0;
+            border: 2px solid;
+            border-color: #fff #aaa #aaa #fff;
             border-radius: 10px;
-            background-color: transparent;
-            color: #00f5d4;
-            text-shadow: 0 0 5px #00f5d4;
-            transition: all 0.3s ease;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s ease;
         }
 
         #start-button:hover {
-            background-color: #00f5d4;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px #00f5d4;
+            background-color: #fff;
+        }
+
+        #start-button:active {
+            transform: translate(1px, 1px);
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
+            border-color: #aaa #fff #fff #aaa;
         }
 
         #score {
@@ -137,56 +137,42 @@
             left: 10px;
             font-size: 1.5em;
             font-weight: bold;
-            color: #f0f0f0;
+            color: #f0f0f0; /* Light color for visibility on dark background */
             z-index: 5;
             display: none; /* Hidden until game starts */
-            text-shadow: 0 0 5px #ffffff, 0 0 10px #00f5d4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Dark shadow for contrast */
         }
+
         .skin-button {
             display: inline-block;
             padding: 10px 20px;
             margin-top: 5px;
-            margin-right: 10px;
+            margin-right: 10px; /* Add space between buttons */
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            color: #00f5d4;
-            background-color: transparent;
-            border: 2px solid #00f5d4;
+            color: #333;
+            background-color: #f0f0f0;
+            border: 2px solid;
+            border-color: #fff #aaa #aaa #fff;
             border-radius: 8px;
-            text-shadow: 0 0 5px #00f5d4;
-            transition: all 0.3s ease;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s ease;
         }
         .skin-button:hover {
-            background-color: #00f5d4;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px #00f5d4;
+            background-color: #fff;
         }
         .skin-button:active {
-            transform: scale(0.98);
-        }
-
-        /* Style for the active skin button */
-        .skin-button[href="gameSkinNeon.html"] {
-            background-color: #00f5d4;
-            color: #1a1a2e;
-            box-shadow: 0 0 20px #00f5d4;
-        }
-
-        /* 3D/Glow effect for text */
-        #tswcontproper h1, #tswcontproper h2, #tswcontproper p {
-            /* A more intense, voluminous glow effect */
-            color: #fff;
-            text-shadow: 0 0 4px #fff, 
-                         0 0 10px #00f5d4, 
-                         0 0 20px #00f5d4;
+            transform: translate(1px, 1px);
+            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4);
+            border-color: #aaa #fff #fff #aaa;
         }
     </style>
 </head>
 
-<body style="background: #1a1a2e;">
+<body style="background: rgb(197, 110, 11);">
 
     <div id="tswcontainer">
         <div id="tswheader">
@@ -217,6 +203,7 @@
                     <div id="obstacle-triangle"></div>
                     <div id="obstacle-rectangle"></div>
                 </div>
+
                 <h2>Skins</h2>
                 <a href="projects.html" class="skin-button">Default</a>
                 <a href="gameSkinClassic.html" class="skin-button">Classic</a>
