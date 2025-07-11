@@ -7,16 +7,21 @@ body {
     --gompei-count: 1;
     background-color: rgb(0, 39, 0);
     color: white;
+    overflow: hidden;
 }
 
 #game-body {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
+    height: calc(100vh - 100px);
 }
 
 #main-game-content {
     flex: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 
@@ -27,6 +32,8 @@ body {
     /* flex-direction: row; */
     flex-wrap: wrap;
     margin-bottom: 10px;
+    background-color: rgb(0, 39, 0);
+    z-index: 1;
 }
 
 #lawn-simulator {
@@ -41,6 +48,7 @@ body {
     /* Crucial for positioning Gompeis */
     overflow: hidden;
     /* Hide Gompeis that might be placed outside */
+    height: 100%;
 }
 
 .pasture-gompei {
@@ -49,11 +57,23 @@ body {
     height: auto;
 }
 
+.pasture-supergompei {
+    position: absolute;
+    width: 100px;
+    height: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: hue-rotate(180deg) sepia(calc(var(--gompei-count) * 10%)) saturate(calc(clamp(0, var(--gompei-count), 10) * 40% + 100%));
+}
+
 #widget-container {
     border: 5px solid white;
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    overflow-y: auto;
+    flex-grow: 1;
 }
 
 #super-gompei {

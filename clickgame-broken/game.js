@@ -3,6 +3,8 @@ const stores = document.getElementsByClassName("store");
 const score_element = document.getElementById("score");
 const lawn_div = document.getElementById("lawn-simulator");
 
+const PRICE_INCREASE_PERCENTAGE = 1.05; // 5%
+
 let score = 5;
 let super_gompei_count = 0;
 
@@ -39,19 +41,15 @@ function buy(store) {
     // check available to buy
     // change score
 
-    // For lawn plots, increase the cost for the next purchase
-    if (store.getAttribute("name") === "Lawn Plot") {
-        // Increase cost by 8% for a more balanced progression
-        const newCost = Math.ceil(cost * 1.08);
+    // Increase the cost for the next purchase for all items except the lawn mower
+    if (store.getAttribute("name") !== "Lawn Mower") {
+        const newCost = Math.ceil(cost * PRICE_INCREASE_PERCENTAGE);
         store.setAttribute("cost", newCost);
-        const display = store.firstElementChild;
-        // Find the text node that contains the cost and update it.
-        // This is more robust than replacing the whole innerHTML.
-        for (const node of display.childNodes) {
-            // Node.TEXT_NODE is type 3. We look for the text containing "Cost:".
-            if (node.nodeType === 3 && node.textContent.includes('Cost:')) {
-                node.textContent = `Cost: ${newCost}`;
-                break; // Exit loop once the cost is updated
+        const pElements = store.getElementsByTagName("p");
+        for (const p of pElements) {
+            if (p.textContent.includes("points")) {
+                p.textContent = `${newCost} points`;
+                break;
             }
         }
     }
@@ -68,19 +66,6 @@ function buy(store) {
             const pastureGompei = document.createElement('img');
             pastureGompei.src = store.getAttribute("src");
             pastureGompei.className = 'pasture-supergompei';
-    
-            // Get pasture dimensions to place the gompei inside
-            const pastureRect = lawn_div.getBoundingClientRect();
-            const gompeiSize = 100; // Must match the width in CSS
-    
-            // Calculate random position, ensuring it's within bounds
-            const randomTop = pastureRect.height/2
-            const randomLeft = pastureRect.width/2
-            const randomRotation = 0;
-    
-            pastureGompei.style.top = `${randomTop}px`;
-            pastureGompei.style.left = `${randomLeft}px`;
-            pastureGompei.style.transform = `rotate(${randomRotation}deg)`;
     
             lawn_div.appendChild(pastureGompei);
         }
@@ -121,6 +106,7 @@ function buy(store) {
         pastureGompei.style.transform = `rotate(${randomRotation}deg)`;
 
         lawn_div.appendChild(pastureGompei);
+        console.log(randomTop,randomLeft);
     }
 
 
@@ -178,11 +164,21 @@ const lawnMowerStoreItem = document.createElement('div');
 lawnMowerStoreItem.className = 'store';
 lawnMowerStoreItem.setAttribute('name', 'Lawn Mower');
 lawnMowerStoreItem.setAttribute('cost', '300');
+lawnMowerStoreItem.setAttribute('src', './lawn-mower.png');
 
 const lawnMowerDisplay = document.createElement('div');
 lawnMowerDisplay.className = 'widget'; // For display consistency in the store
-lawnMowerDisplay.innerHTML = '🚜<br>Lawn Mower<br>(auto-clicks plots)<br>Cost: 300';
+lawnMowerDisplay.innerHTML = `<img src="./lawn-mower.png" style="max-width: 100%; max-height: 60%;">`;
 lawnMowerStoreItem.appendChild(lawnMowerDisplay);
+
+const lawnMowerText = document.createElement('p');
+lawnMowerText.textContent = 'Lawn Mower';
+lawnMowerStoreItem.appendChild(lawnMowerText);
+
+const lawnMowerCost = document.createElement('p');
+lawnMowerCost.textContent = '300 points';
+lawnMowerStoreItem.appendChild(lawnMowerCost);
+
 
 // Add it to the same container as the other stores
 if (stores.length > 0) {
