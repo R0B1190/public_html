@@ -9,6 +9,17 @@ body {
     color: white;
 }
 
+#game-body {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+#main-game-content {
+    flex: 2;
+}
+
+
 #store-container {
     border: 5px solid white;
     width: 100%;
@@ -16,6 +27,26 @@ body {
     /* flex-direction: row; */
     flex-wrap: wrap;
     margin-bottom: 10px;
+}
+
+#lawn-simulator {
+    flex: 1;
+    background-color: #2e8b57;
+    /* Seagreen */
+    border: 3px solid #006400;
+    /* Darkgreen */
+    border-radius: 10px;
+    min-height: 500px;
+    position: relative;
+    /* Crucial for positioning Gompeis */
+    overflow: hidden;
+    /* Hide Gompeis that might be placed outside */
+}
+
+.pasture-gompei {
+    position: absolute;
+    width: 50px;
+    height: auto;
 }
 
 #widget-container {
