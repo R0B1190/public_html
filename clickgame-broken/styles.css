@@ -3,52 +3,59 @@
     --widget-height: 150px;
 }
 
+h1{
+    font-size: 5vh;
+}
+
+h2{
+    font-size: 3vh;
+}
+
 body {
     --gompei-count: 1;
     background-color: rgb(0, 39, 0);
     color: white;
     overflow: hidden;
 }
+    /* Prevents highlighting on game elements when clicked */
+#store-container, #lawn-simulator, #widget-container {
+    -webkit-user-select: none; /* Safari */
+    user-select: none; /* Standard syntax */
+}
 
 #game-body {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    height: calc(100vh - 100px);
+    height: 92vh;
+    width: 100vw;
 }
 
 #main-game-content {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    height: 92vh;
+    width: 70vw;
 }
 
 
 #store-container {
     border: 5px solid white;
-    width: 100%;
+    width: 70vw;
     display: flex;
     /* flex-direction: row; */
     flex-wrap: wrap;
-    margin-bottom: 10px;
     background-color: rgb(0, 39, 0);
     z-index: 1;
 }
 
 #lawn-simulator {
-    flex: 1;
+    display: flex;
     background-color: #2e8b57;
     /* Seagreen */
     border: 3px solid #006400;
     /* Darkgreen */
     border-radius: 10px;
-    min-height: 500px;
+    width: 30%;
     position: relative;
     /* Crucial for positioning Gompeis */
     overflow: hidden;
     /* Hide Gompeis that might be placed outside */
-    height: 100%;
 }
 
 .pasture-gompei {
@@ -69,11 +76,10 @@ body {
 
 #widget-container {
     border: 5px solid white;
-    width: 100%;
     display: flex;
     flex-wrap: wrap;
     overflow-y: auto;
-    flex-grow: 1;
+    height: 50%;
 }
 
 #super-gompei {
