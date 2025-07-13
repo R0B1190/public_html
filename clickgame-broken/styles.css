@@ -1,14 +1,21 @@
+html {
+    /* Base font size can remain for general accessibility */
+    font-size: 16px;
+}
+
 :root {
+    /* Revert to fixed sizes for widgets */
     --widget-width: 150px;
     --widget-height: 150px;
+    --widget-margin: 5px;
 }
 
 h1 {
-    font-size: 5vh;
+    font-size: 5vh; /* Revert to viewport height based scaling for titles */
 }
 
 h2 {
-    font-size: 3vh;
+    font-size: 3vh; /* Revert to viewport height based scaling for titles */
 }
 
 body {
@@ -16,6 +23,11 @@ body {
     background-color: rgb(0, 39, 0);
     color: white;
     overflow: hidden;
+    /* New flex properties to manage page layout */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0; /* Remove default browser margin */
 }
 
 /* Prevents highlighting on game elements when clicked */
@@ -30,8 +42,10 @@ body {
 
 #game-body {
     display: flex;
-    height: 92vh;
+    /* Let the game body grow to fill available space instead of a fixed height */
+    flex-grow: 1;
     width: 100vw;
+    min-height: 0; /* Fix for nested flex containers */
 }
 
 #main-game-content {
@@ -39,19 +53,37 @@ body {
     /* Occupy 70% of width, don't grow or shrink */
     display: flex;
     flex-direction: column;
+    height: 100%; /* Ensure it fills the height of game-body */
 }
 
 
 #store-container {
     border: 5px solid white;
-    /* width is no longer needed, it will stretch to the parent's width */
     display: flex;
-    /* flex-direction: row; */
     flex-wrap: wrap;
     background-color: rgb(0, 39, 0);
     z-index: 1;
     overflow-y: auto;
-    /* Add scroll for overflow */
+    position: relative; /* Needed for positioning the button */
+    flex: 4; /* Set flex-grow to 3 for a 30% height ratio */
+    min-height: 0; /* Prevent flexbox overflow */
+}
+
+#auto-buy-toggle {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    z-index: 2; /* Ensure it's on top of store items */
+}
+
+#auto-buy-toggle.active {
+    background-color: #4CAF50;
+    color: white;
 }
 
 #lawn-simulator {
@@ -73,18 +105,19 @@ body {
 
 .pasture-gompei {
     position: absolute;
-    width: 50px;
+    width: 50px; /* Revert to fixed size */
     height: auto;
 }
 
 .pasture-supergompei {
     position: absolute;
-    width: 100px;
+    width: 100px; /* Revert to fixed size */
     height: auto;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     filter: hue-rotate(180deg) sepia(calc(var(--gompei-count) * 10%)) saturate(calc(clamp(0, var(--gompei-count), 10) * 40% + 100%));
+    z-index: 1;
 }
 
 #widget-container {
@@ -92,8 +125,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     overflow-y: auto;
-    flex: 1;
-    /* Occupy 50% of height, don't grow or shrink */
+    flex: 6; /* Set flex-grow to 7 for a 70% height ratio */
+    min-height: 0; /* Prevent flexbox overflow */
 }
 
 #super-gompei {
@@ -122,7 +155,7 @@ body {
 
     width: var(--widget-width);
     height: var(--widget-height);
-    margin: 5px;
+    margin: var(--widget-margin);
 
     cursor: pointer;
 

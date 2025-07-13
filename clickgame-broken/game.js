@@ -152,7 +152,8 @@ function buy(store) {
             return; // Return to prevent creating a new widget
         } else {
             const pastureGompei = document.createElement('img');
-            pastureGompei.src = store.getAttribute("src");
+            // Correctly get the image source from the store's display widget
+            pastureGompei.src = store.querySelector('.widget img').src;
             pastureGompei.className = 'pasture-supergompei';
     
             lawn_div.appendChild(pastureGompei);
@@ -176,7 +177,8 @@ function buy(store) {
 
     if (store.getAttribute("name") === "Gompei") {
         const pastureGompei = document.createElement('img');
-        pastureGompei.src = store.getAttribute("src");
+        // Correctly get the image source from the store's display widget
+        pastureGompei.src = store.querySelector('.widget img').src;
         pastureGompei.className = 'pasture-gompei';
 
         // Get pasture dimensions to place the gompei inside
@@ -201,25 +203,28 @@ function buy(store) {
     const widget = store.firstElementChild.cloneNode(true);
     widget.setAttribute('data-type', store.getAttribute("name"));
     widget.onclick = () => {
-        harvest(widget);
+        if (widget.getAttribute("auto") != 'true') {
+            harvest(widget, true);
+        }
     }
     widget_container.appendChild(widget);
 
-    if (widget.getAttribute("auto") == 'true') {
-        widget.setAttribute("harvesting", "");
-        setup_end_harvest(widget);
-    } else if (lawnMowerActive && !widget.querySelector("#super-gompei")) {
-        // This is a manual widget (lawn) and the mower is active.
-        // Start the harvest cycle immediately.
-        harvest(widget);
-    }
+    // Start the first cooldown without generating points
+    startCooldown(widget);
+}
+
+function startCooldown(widget) {
+    // Set harvesting flag to start animation
+    widget.setAttribute("harvesting", "");
+    // Set timeout to end harvest
+    setup_end_harvest(widget);
 }
 
 function setup_end_harvest(widget) {
     setTimeout(() => {
         // Remove the harvesting flag
         widget.removeAttribute("harvesting");
-        // If automatic, start again
+        // If automatic, start again and collect points
         if (widget.getAttribute("auto") == 'true') {
             harvest(widget);
         }
@@ -230,17 +235,18 @@ function setup_end_harvest(widget) {
     }, parseFloat(widget.getAttribute("cooldown")) * 1000);
 }
 
-function harvest(widget) {
+function harvest(widget, is_manual_click = false) {
     // Only run if currently not harvesting
-    if (widget.hasAttribute("harvesting")) return;
-    // Set harvesting flag
-    widget.setAttribute("harvesting", "");
+    if (widget.hasAttribute("harvesting")) {
+        return;
+    }
 
-    // If manual, collect points now
+    // For all harvests (auto, manual click, lawnmower), give points.
     changeScore(parseInt(widget.getAttribute("reap")));
     showPoint(widget);
 
-    setup_end_harvest(widget);
+    // Then, start the cooldown period.
+    startCooldown(widget);
 }
 
 
@@ -255,72 +261,100 @@ function showPoint(widget) {
 }
 
 
-// Update the Lawn store item's display to show the grass image.
-const lawnStore = Array.from(stores).find(s => s.getAttribute("name") === "Lawn");
-if (lawnStore) {
-    const widgetDisplay = lawnStore.querySelector('.widget');
-    if (widgetDisplay) {
-        // Replace the text content with an image, matching the style of other store items.
-        widgetDisplay.innerHTML = `<img src="./grass.jpeg" alt="A patch of grass" style="max-width: 100%; max-height: 60%;">`;
+// ==================================================
+// STORE INITIALIZATION
+// ==================================================
+
+const storeItemDefinitions = [
+    { name: "Lawn", cost: 5, reap: 2, cooldown: 0.5, auto: false, image: './grass.jpeg', description: "+2 sqft" },
+    { name: "Gompei", cost: 15, reap: 10, cooldown: 2.0, auto: true, image: './gompei.png', description: "+10 sqft" },
+    { name: "Super-Gompei", cost: 150, reap: 100, cooldown: 5.0, auto: true, image: './gompei.png', id: 'super-gompei', description: "+100 sqft" },
+    { name: "Lawn Mower", cost: 300, image: './lawn-mower.png', oneTime: true, description: "Auto-harvests lawns" },
+    { name: "Lawn Upgrade", cost: 500, image: './grass.jpeg', type: 'upgrade', targetName: 'Lawn', upgradeAmount: 1, description: "+1 reap to Lawns" },
+    { name: "Gompei Upgrade", cost: 1000, image: './gompei.png', type: 'upgrade', targetName: 'Gompei', upgradeAmount: 5, description: "+5 reap to Gompeis" }
+];
+
+function createStoreItemElement(item) {
+    const storeItem = document.createElement('div');
+    storeItem.className = 'store';
+    storeItem.setAttribute('name', item.name);
+    storeItem.setAttribute('cost', item.cost);
+
+    if (item.type === 'upgrade') {
+        storeItem.setAttribute('target-name', item.targetName);
+        storeItem.setAttribute('upgrade-amount', item.upgradeAmount);
     }
-}
 
-// Create and add the Lawn Mower store item since it's missing from the HTML
-const lawnMowerStoreItem = document.createElement('div');
-lawnMowerStoreItem.className = 'store';
-lawnMowerStoreItem.setAttribute('name', 'Lawn Mower');
-lawnMowerStoreItem.setAttribute('cost', '300');
-lawnMowerStoreItem.setAttribute('src', './lawn-mower.png');
+    // The display inside the store. For regular items, this is also the template to be cloned.
+    const displayWidget = document.createElement('div');
+    displayWidget.className = 'widget';
 
-const lawnMowerDisplay = document.createElement('div');
-lawnMowerDisplay.className = 'widget'; // For display consistency in the store
-lawnMowerDisplay.innerHTML = `<img src="./lawn-mower.png" style="max-width: 100%; max-height: 60%;">`;
-lawnMowerStoreItem.appendChild(lawnMowerDisplay);
-
-const lawnMowerText = document.createElement('p');
-lawnMowerText.textContent = 'Lawn Mower';
-lawnMowerStoreItem.appendChild(lawnMowerText);
-
-const lawnMowerCost = document.createElement('p');
-lawnMowerCost.textContent = '300 points';
-lawnMowerStoreItem.appendChild(lawnMowerCost);
-
-
-// Add it to the same container as the other stores
-if (stores.length > 0) {
-    stores[0].parentElement.appendChild(lawnMowerStoreItem);
-}
-
-// Create and add upgrade store items
-function createUpgradeStore(name, cost, targetName, upgradeAmount, imageSrc, imageAlt) {
-    const upgradeStoreItem = document.createElement('div');
-    upgradeStoreItem.className = 'store';
-    upgradeStoreItem.setAttribute('name', name);
-    upgradeStoreItem.setAttribute('cost', cost);
-    upgradeStoreItem.setAttribute('target-name', targetName); // Which item it upgrades
-    upgradeStoreItem.setAttribute('upgrade-amount', upgradeAmount); // How much to upgrade by
-
-    const display = document.createElement('div');
-    display.className = 'widget';
-    display.innerHTML = `<img src="${imageSrc}" alt="${imageAlt}" style="max-width: 100%; max-height: 60%;">`;
-    upgradeStoreItem.appendChild(display);
-
-    const text = document.createElement('p');
-    text.textContent = name;
-    upgradeStoreItem.appendChild(text);
-
-    const costText = document.createElement('p');
-    costText.textContent = `${cost} points`;
-    upgradeStoreItem.appendChild(costText);
-
-    // Add it to the same container as the other stores
-    if (stores.length > 0) {
-        stores[0].parentElement.appendChild(upgradeStoreItem);
+    if (!item.oneTime && item.type !== 'upgrade') {
+        // It's a clonable item, so the display widget needs all the data attributes
+        displayWidget.setAttribute('reap', item.reap);
+        displayWidget.setAttribute('cooldown', item.cooldown);
+        displayWidget.setAttribute('auto', String(item.auto));
+        displayWidget.setAttribute('name', item.name);
     }
+
+    const img = document.createElement('img');
+    img.src = item.image;
+    img.alt = item.name;
+    if (item.id) {
+        img.id = item.id;
+    }
+    // Apply consistent styling for the image within the widget
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100%';
+    displayWidget.appendChild(img);
+
+    // Add overlay for clonable items for the cooldown animation
+    if (!item.oneTime && item.type !== 'upgrade') {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay-slide';
+        overlay.style.animationDuration = item.cooldown + 's';
+        displayWidget.appendChild(overlay);
+    }
+    
+    storeItem.appendChild(displayWidget);
+
+    // Add text descriptions
+    const nameP = document.createElement('p');
+    nameP.textContent = item.name;
+    storeItem.appendChild(nameP);
+
+    const costP = document.createElement('p');
+    costP.textContent = `${item.cost} points`;
+    storeItem.appendChild(costP);
+
+    if (item.description) {
+        const descP = document.createElement('p');
+        descP.textContent = item.description;
+        storeItem.appendChild(descP);
+    }
+    
+    if (item.cooldown) {
+        const cooldownP = document.createElement('p');
+        cooldownP.textContent = `${item.cooldown}s`;
+        storeItem.appendChild(cooldownP);
+    }
+
+    // Attach event listeners for speed buy
+    storeItem.onmousedown = function() { startSpeedBuy(this); };
+    storeItem.onmouseup = stopSpeedBuy;
+    storeItem.onmouseleave = stopSpeedBuy;
+
+    return storeItem;
 }
 
-createUpgradeStore('Lawn Upgrade', '500', 'Lawn', '1', './grass.jpeg', 'An upgrade for lawns');
-createUpgradeStore('Gompei Upgrade', '1000', 'Gompei', '5', './gompei.png', 'An upgrade for Gompeis');
+function initializeStore() {
+    const storeContainer = document.getElementById('store-container');
+    storeContainer.innerHTML = ''; // Clear any hardcoded store items
+    storeItemDefinitions.forEach(itemData => {
+        const storeItemElement = createStoreItemElement(itemData);
+        storeContainer.appendChild(storeItemElement);
+    });
+}
 
 // Speed buy functionality
 let speedBuyTimeout = null;
@@ -337,7 +371,7 @@ function startSpeedBuy(store) {
     speedBuyTimeout = setTimeout(() => {
         speedBuyInterval = setInterval(() => {
             buy(store);
-        }, 0); // Buy as fast as possible
+        }, 100); // Buy rapidly
     }, 150); // Wait 150ms before starting to speed buy
 }
 
@@ -348,39 +382,28 @@ function stopSpeedBuy() {
     speedBuyInterval = null;
 }
 
-// Apply speed buy to all store items
-for (const store of stores) {
-    store.onclick = null; // Remove inline onclick handler
-    store.onmousedown = function() { startSpeedBuy(this); };
-    store.onmouseup = stopSpeedBuy;
-    store.onmouseleave = stopSpeedBuy;
+// Auto-buy button creation
+function createAutoBuyButton() {
+    const autoBuyButton = document.createElement('button');
+    autoBuyButton.id = 'auto-buy-toggle';
+    autoBuyButton.textContent = 'Auto-Buy: OFF';
+    autoBuyButton.title = 'When ON, automatically buys the cheapest available item.';
+    
+    const storeContainer = document.getElementById('store-container');
+    storeContainer.appendChild(autoBuyButton);
+
+    autoBuyButton.addEventListener('click', () => {
+        autoBuyEnabled = !autoBuyEnabled;
+        autoBuyButton.textContent = `Auto-Buy: ${autoBuyEnabled ? 'ON' : 'OFF'}`;
+        autoBuyButton.classList.toggle('active', autoBuyEnabled);
+        if (autoBuyEnabled) {
+            // Immediately check if we can buy something
+            autoBuyCheapest();
+        }
+    });
 }
 
-// Create and add the auto-buy button
-const autoBuyButton = document.createElement('button');
-autoBuyButton.id = 'auto-buy-toggle';
-autoBuyButton.textContent = 'Auto-Buy: OFF';
-autoBuyButton.title = 'When ON, automatically buys the cheapest available item.';
-autoBuyButton.style.padding = '5px 10px';
-autoBuyButton.style.cursor = 'pointer';
-autoBuyButton.style.border = '1px solid #ccc';
-autoBuyButton.style.borderRadius = '4px';
-autoBuyButton.style.display = 'block';
-autoBuyButton.style.margin = "10px auto";
-const firstStoreItem = document.querySelector(".store");
-firstStoreItem?.parentElement?.before(autoBuyButton);
-
-autoBuyButton.addEventListener('click', () => {
-    autoBuyEnabled = !autoBuyEnabled;
-    autoBuyButton.textContent = `Auto-Buy: ${autoBuyEnabled ? 'ON' : 'OFF'}`;
-    if (autoBuyEnabled) {
-        autoBuyButton.style.backgroundColor = '#4CAF50';
-        autoBuyButton.style.color = 'white';
-        // Immediately check if we can buy something
-        autoBuyCheapest();
-    } else {
-        autoBuyButton.style.backgroundColor = '';
-        autoBuyButton.style.color = '';
-    }
-});
-changeScore(0);
+// Initial game setup
+initializeStore();
+createAutoBuyButton();
+changeScore(0); // Initial call to set store availability
