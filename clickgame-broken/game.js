@@ -132,31 +132,51 @@ function buy(store) {
 
     if (store.getAttribute("name") === "Super-Gompei") {
         super_gompei_count += 1;
-        document.body.style = "--gompei-count: " + super_gompei_count + ";";
-        const super_gompei = document.querySelector("#widget-container #super-gompei")?.parentElement;
+        document.body.style.setProperty("--gompei-count", super_gompei_count);
+        const super_gompei_widget = document.querySelector("#widget-container #super-gompei")?.parentElement;
+        
         // If Super-Gompei already exists
-        if (super_gompei) {
+        if (super_gompei_widget) {
             const reapToAdd = 100; // Each purchase adds 100 to the total.
-            const newTotalReap = parseInt(super_gompei.getAttribute("reap")) + reapToAdd;
-            super_gompei.setAttribute("reap", newTotalReap);
-
+            const newTotalReap = parseInt(super_gompei_widget.getAttribute("reap")) + reapToAdd;
+            super_gompei_widget.setAttribute("reap", newTotalReap);
+            
             // Also update the template in the store so the text reflects the new total
             const templateWidget = store.querySelector('.widget');
             templateWidget.setAttribute("reap", newTotalReap);
-
+            
             // Now update the display text.
             const scoreTextParagraph = Array.from(store.getElementsByTagName("p")).find(p => p.textContent.includes('sqft'));
             if (scoreTextParagraph) {
                 scoreTextParagraph.textContent = `+${newTotalReap} sqft`;
             }
-            return; // Return to prevent creating a new widget
+            
         } else {
             const pastureGompei = document.createElement('img');
             // Correctly get the image source from the store's display widget
             pastureGompei.src = store.querySelector('.widget img').src;
             pastureGompei.className = 'pasture-supergompei';
-    
+
             lawn_div.appendChild(pastureGompei);
+        }
+        // Make the Gompei on the lawn grow
+        const pasture_gompei_img = document.querySelector(".pasture-supergompei");
+        if (pasture_gompei_img) {
+            const initialSize = 100; // The base size in pixels
+            const maxSize = 500; // The maximum size the gompei will approach
+            const growthFactor = 0.85; // Determines how quickly it approaches the max size (closer to 1 is slower)
+
+            // The formula for asymptotic growth: newSize = L - (L - a) * (b^n)
+            // Where L=maxSize, a=initialSize, b=growthFactor, n=purchases after the first
+            // We use super_gompei_count - 1 because the first purchase (count=1) should be the base size (n=0).
+            const purchases = super_gompei_count - 1;
+            const newSize = maxSize - (maxSize - initialSize) * Math.pow(growthFactor, purchases);
+            
+            pasture_gompei_img.style.width = `${newSize}px`;
+        }
+
+        if (super_gompei_widget){
+            return;
         }
     }
 
