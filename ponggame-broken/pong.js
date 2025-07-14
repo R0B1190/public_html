@@ -19,7 +19,8 @@ function onTick() {
 function play() {
     model.paddleL.move(model.cpu_left, model.ball, model.cpu_difficulty);
     model.paddleR.move(model.cpu_right, model.ball, model.cpu_difficulty);
-    let scoreSide = model.ball.bounce([model.paddleL, model.paddleR]);
+    model.ball.move(); // Move the ball first...
+    let scoreSide = model.ball.bounce([model.paddleL, mdel.paddleR]);
     if (scoreSide != SIDE.NONE) {
         if (scoreSide == SIDE.LEFT) model.scoreR++;
         if (scoreSide == SIDE.RIGHT) model.scoreL++;
@@ -27,7 +28,6 @@ function play() {
         model.resetBall();
         if (model.scoreL > 10 || model.scoreR > 10) return STATE.GAMEOVER;
     }
-    model.ball.move();
     // Add serving the ball?
     // If a player wins, stop the game...
     return STATE.PLAYING;

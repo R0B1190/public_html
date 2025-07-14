@@ -61,27 +61,32 @@ class Paddle {
     }
 
     bounce(ball) {
-        let bounce_dir = Math.sign(BOARD_WIDTH / 2 - this.posx);
-        // Check for collision using the edges of the ball and paddle
-        if (ball.velx > this.width || -ball.velx > this.width) { // Tunneling catch.
-            // linear equation.
-            let m = (ball.vely / ball.velx);
-            ball.posy = ball.posy + m * (this.posx - ball.posx);
-            ball.posx = this.posx + this.width / 2
+        const ballTop = ball.posy - BALL_RADIUS;
+        const ballBottom = ball.posy + BALL_RADIUS;
+        const ballLeft = ball.posx - BALL_RADIUS;
+        const ballRight = ball.posx + BALL_RADIUS;
 
-            // consol log params
+        const paddleTop = this.posy;
+        const paddleBottom = this.posy + this.height;
+        const paddleLeft = this.posx;
+        const paddleRight = this.posx + this.width;
 
-            console.log(`Tunneling catch: ball pos (${ball.posx}, ${ball.posy}), paddle pos (${this.posx}, ${this.posy}), width ${this.width}, height ${this.height}`);
+        // Check for AABB (Axis-Aligned Bounding Box) collision.
+        if (ballRight < paddleLeft || ballLeft > paddleRight || ballBottom < paddleTop || ballTop > paddleBottom) {
+            return SIDE.NONE; // No collision.
         }
 
-        if (ball.posy + BALL_RADIUS >= this.posy && ball.posy - BALL_RADIUS <= this.posy + this.height && // within y
-            (ball.posx - BALL_RADIUS <= this.posx + this.width && ball.posx + BALL_RADIUS >= this.posx) &&  // within x 
-            ball.velx * bounce_dir < 0 // ball going into wall
-        ) {
-            ball.velx = bounce_dir * PADDLE_FORCE * Math.abs(ball.velx);
-            return SIDE.NONE;
-        }
+        // Collision detected. Now, handle the bounce physics.
+        // We only want to bounce if the ball is moving towards the paddle.
+        const move_dir = "left" ? this.side === SIDE.LEFT && ball.velx < 0 : "right" ? this.side === SIDE.RIGHT && ball.velx > 0 : false;
 
+        if (move_dir == "left") {
+            ball.velx = PADDLE_FORCE * Math.abs(ball.velx);
+            ball.posx = paddleRight + BALL_RADIUS; // Correct position to prevent sticking.
+        } else if (move_dir == "right") {
+            ball.velx = -PADDLE_FORCE * Math.abs(ball.velx);
+            ball.posx = paddleLeft - BALL_RADIUS; // Correct position.
+        }
 
         return SIDE.NONE;
     }
