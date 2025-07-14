@@ -14,7 +14,7 @@ class Model {
     paddleR;
     scoreL = 0;
     scoreR = 0;
-    is_cpu = false;
+    is_cpu = true;
     state = STATE.STARTUP;
     intervalID = -1;
 
