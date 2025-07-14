@@ -63,7 +63,7 @@ class Paddle {
     bounce(ball) {
         let bounce_dir = Math.sign(BOARD_WIDTH / 2 - this.posx);
         // Check for collision using the edges of the ball and paddle
-        if (ball.velx > this.width) { // Tunneling catch.
+        if (ball.velx > this.width || -ball.velx > this.width) { // Tunneling catch.
             // linear equation.
             let m = (ball.vely / ball.velx);
             ball.posy = ball.posy + m * (this.posx - ball.posx);
