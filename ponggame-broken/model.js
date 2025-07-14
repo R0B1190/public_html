@@ -15,7 +15,7 @@ class Model {
     paddleR;
     scoreL = 0;
     scoreR = 0;
-    is_cpu = false;
+    is_cpu = true;
     cpu_difficulty = CPU_DIFFICULTY.EASY;
     state = STATE.STARTUP;
     intervalID = -1;
