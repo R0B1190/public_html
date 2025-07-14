@@ -175,7 +175,7 @@ body {
     height: auto;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%), rotateX(180deg);
     filter: hue-rotate(180deg) sepia(calc(var(--gompei-count) * 10%)) saturate(calc(clamp(0, var(--gompei-count), 10) * 40% + 100%));
     z-index: 1;
     transition: transform 0.5s ease-out, width 0.5s ease-out;
