@@ -55,6 +55,7 @@
             margin: 20px auto; /* Center the container */
             border-radius: 15px; /* Rounded corners */
             overflow: hidden; /* This is the key to clip the child viewport's corners */
+            transition: all 0.4s ease-in-out;
         }
 
         /* When fullscreen, the container should fill the screen */
@@ -73,6 +74,7 @@
             left: 50%;
             overflow: hidden; /* Keeps player and obstacles inside */
             transform-origin: center; /* Scale/transform from the center */
+            transition: transform 0.4s ease-in-out, border-radius 0.4s ease-in-out;
             border-radius: 15px;
         }
 
@@ -89,6 +91,12 @@
             z-index: 2; /* Above game elements, below UI like score/controls */
             pointer-events: none; /* Don't block mouse/touch events */
         }
+
+        body.standalone-mode #game-container #game-viewport,
+        #game-container:fullscreen #game-viewport {
+            border-radius: 0;
+        }
+
 
         #player-circle {
             width: 50px;
@@ -227,19 +235,19 @@
 
         .control-cluster {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             pointer-events: all; /* But not through the clusters */
         }
 
         #action-controls {
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .control-btn {
-            width: 60px;
-            height: 60px;
-            font-size: 2em;
+            width: 75px;
+            height: 75px;
+            font-size: 2.5em;
             font-weight: bold;
             color: #333;
             background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
