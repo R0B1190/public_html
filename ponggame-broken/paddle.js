@@ -24,6 +24,8 @@ class Paddle {
             let speed_mod = 1.0;
             let should_move = false;
 
+            const isRightPaddle = this.side === SIDE.RIGHT;
+
             switch (difficulty) {
                 case CPU_DIFFICULTY.HARD:
                     should_move = true; // Always follow the ball
@@ -32,14 +34,16 @@ class Paddle {
                     break;
                 case CPU_DIFFICULTY.MEDIUM:
                     // Only follow when ball is coming towards the paddle
-                    should_move = (ball.velx > 0);
+                    should_move = isRightPaddle ? (ball.velx > 0) : (ball.velx < 0);
                     deadzone = 10;
                     speed_mod = 0.9;    // Slightly slower
                     break;
                 case CPU_DIFFICULTY.EASY:
                 default:
                     // Follow if ball is on the CPU's half of the board
-                    should_move = (ball.posx > BOARD_WIDTH / 2);
+                    should_move = isRightPaddle
+                        ? (ball.posx > BOARD_WIDTH / 2)
+                        : (ball.posx < BOARD_WIDTH / 2);
                     deadzone = 15;      // Less precise
                     speed_mod = 0.8;    // Slower
                     break;

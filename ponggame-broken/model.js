@@ -15,7 +15,8 @@ class Model {
     paddleR;
     scoreL = 0;
     scoreR = 0;
-    is_cpu = false;
+    cpu_left = false; // Default to Player vs CPU
+    cpu_right = true;
     cpu_difficulty = CPU_DIFFICULTY.EASY;
     state = STATE.STARTUP;
     intervalID = -1;
