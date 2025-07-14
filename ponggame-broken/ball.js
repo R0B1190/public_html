@@ -3,14 +3,12 @@ class Ball {
     posy;
     velx;
     vely;
-    inPlay;
 
     constructor(posx, posy, velx, vely) {
         this.posx = posx;
         this.posy = posy;
         this.velx = velx;
         this.vely = vely;
-        this.inPlay = false;
     }
 
 

@@ -29,8 +29,8 @@ class Model {
         this.state = STATE.STARTUP;
         clearTimeout(this.intervalID);
         this.resetBall();
-        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, "red");
-        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, "green");
+        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, "#00FFFF"); // Cyan
+        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, "#FF00FF"); // Magenta
     }
 
     resetBall() {
