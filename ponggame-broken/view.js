@@ -3,44 +3,49 @@ const ctx = canvas.getContext("2d");
 const scoreboard = document.getElementById("scoreboard");
 
 // --- Animated Background ---
-const backgroundParticles = [];
-const numParticles = 150;
+const stars = [];
+const numStars = 300; // More stars for a denser field with more depth
 
-function initBackground() {
-    for (let i = 0; i < numParticles; i++) {
-        backgroundParticles.push({
-            x: Math.random() * BOARD_WIDTH,
-            y: Math.random() * BOARD_HEIGHT,
-            vx: (Math.random() - 0.5) * 0.3, // Slow horizontal movement
-            vy: (Math.random() - 0.5) * 0.3, // Slow vertical movement
-            radius: Math.random() * 1.5,
-            alpha: Math.random() * 0.5 + 0.2 // Random opacity for depth
+function initStarfield() {
+    stars.length = 0; // Clear existing stars if we ever re-initialize
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            // z-depth determines speed, size, and opacity, creating a parallax effect.
+            // z is from 1 (far) to 3 (near).
+            z: Math.random() * 2 + 1,
+            vx: (Math.random() - 0.5) * 0.2, // Base velocity
+            vy: (Math.random() - 0.5) * 0.2
         });
     }
 }
-initBackground(); // Initialize the background particles once
+initStarfield(); // Initialize the starfield
 
-function drawAnimatedBackground(ctx) {
-    // This function draws and updates the positions of the background starfield particles. The motion blur
-    // effect is handled separately in draw_game to ensure correct layering.
+function drawStarfield(ctx) {
+    // This function draws and updates the positions of the stars to create a parallax effect.
     ctx.save();
-    for (const p of backgroundParticles) {
-        p.x += p.vx;
-        p.y += p.vy;
+    for (const star of stars) {
+        // Update position based on velocity and depth (z). Closer stars (higher z) move faster.
+        star.x += star.vx * star.z;
+        star.y += star.vy * star.z;
 
-        // Wrap particles around the screen
-        if (p.x < 0) p.x = BOARD_WIDTH;
-        if (p.x > BOARD_WIDTH) p.x = 0;
-        if (p.y < 0) p.y = BOARD_HEIGHT;
-        if (p.y > BOARD_HEIGHT) p.y = 0;
+        // Wrap stars around the screen
+        if (star.x < 0) star.x = canvas.width;
+        if (star.x > canvas.width) star.x = 0;
+        if (star.y < 0) star.y = canvas.height;
+        if (star.y > canvas.height) star.y = 0;
+
+        // Calculate radius and alpha based on depth. Closer stars are bigger and brighter.
+        const radius = (star.z / 3) * 1.5;
+        const alpha = (star.z / 3) * 0.7;
 
         ctx.beginPath();
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
         ctx.fill();
     }
     ctx.restore();
-    // The overlay that was previously here has been moved to draw_game.
 }
 
 function updateScore(model) {
@@ -51,7 +56,7 @@ function draw_game(model) {
     // FIX: Draw the semi-transparent overlay FIRST. This creates the motion-blur trail
     // for all elements (particles, ball, paddles) that are drawn after it.
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-    ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Dashed center line with a subtle glow
     ctx.save();
@@ -61,12 +66,12 @@ function draw_game(model) {
     ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
     ctx.shadowBlur = 5;
     ctx.beginPath();
-    ctx.moveTo(BOARD_WIDTH / 2, 0);
-    ctx.lineTo(BOARD_WIDTH / 2, BOARD_HEIGHT);
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.stroke();
     ctx.restore(); // Restore context to remove shadow, line dash etc. for next draws
 
-    drawAnimatedBackground(ctx); // Now draw the particles
+    drawStarfield(ctx); // Draw the new parallax starfield
 
     draw_ball(ctx, model.ball);
     draw_paddle(ctx, model.paddleL);
