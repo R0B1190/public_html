@@ -1,3 +1,27 @@
+/**
+ * Helper function to determine if two line segments intersect.
+ *
+ * @param {number} x1 - The x-coordinate of the start of the first line segment.
+ * @param {number} y1 - The y-coordinate of the start of the first line segment.
+ * @param {number} x2 - The x-coordinate of the end of the first line segment.
+ * @param {number} y2 - The y-coordinate of the end of the first line segment.
+ * @param {number} x3 - The x-coordinate of the start of the second line segment.
+ * @param {number} y3 - The y-coordinate of the start of the second line segment.
+ * @param {number} x4 - The x-coordinate of the end of the second line segment.
+ * @param {number} y4 - The y-coordinate of the end of the second line segment.
+ * @returns {boolean} - True if the line segments intersect, false otherwise.
+ */
+function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (den === 0) {
+        return false;
+    }
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+
+    return t > 0 && t < 1 && u > 0 && u < 1;
+}
+
 const SIDE = { NONE: 0, LEFT: 1, RIGHT: 2 };
 
 class Paddle {
@@ -61,28 +85,23 @@ class Paddle {
     }
 
     bounce(ball) {
-        const ballTop = ball.posy - BALL_RADIUS;
-        const ballBottom = ball.posy + BALL_RADIUS;
-        const ballLeft = ball.posx - BALL_RADIUS;
-        const ballRight = ball.posx + BALL_RADIUS;
+        // Calculate the ball's previous position
+        const prevBallX = ball.posx - ball.velx;
+        const prevBallY = ball.posy - ball.vely;
 
+        // Define the front face of the paddle as a line segment
+        let paddleFrontX;
+        if (this.side === SIDE.LEFT) {
+            paddleFrontX = this.posx + this.width;
+        } else {
+            paddleFrontX = this.posx;
+        }
         const paddleTop = this.posy;
         const paddleBottom = this.posy + this.height;
-        const paddleLeft = this.posx;
-        const paddleRight = this.posx + this.width;
 
-        // Check for AABB (Axis-Aligned Bounding Box) collision.
-        if (ballRight < paddleLeft || ballLeft > paddleRight || ballBottom < paddleTop || ballTop > paddleBottom) {
-            return SIDE.NONE; // No collision.
-        }
-
-        // Collision detected. Now, handle the bounce physics.
-        // We only want to bounce if the ball is moving towards the paddle.
-        const isMovingTowardsPaddle = (this.side === SIDE.LEFT && ball.velx < 0) || (this.side === SIDE.RIGHT && ball.velx > 0);
-
-        // The AABB check above confirmed a collision. If the ball is moving towards the paddle, bounce it.
-        if (isMovingTowardsPaddle) {
-            // Reverse horizontal velocity and apply force.
+        // Check for intersection between the ball's movement vector and the paddle's front face
+        if (linesIntersect(prevBallX, prevBallY, ball.posx, ball.posy, paddleFrontX, paddleTop, paddleFrontX, paddleBottom)) {
+            // Reverse horizontal velocity and apply force
             ball.velx *= -1;
             ball.velx *= PADDLE_FORCE;
 
@@ -90,8 +109,6 @@ class Paddle {
             const MAX_SPIN_VELOCITY = 7; // Maximum vertical speed change from spin
             let intersectPoint = (ball.posy - (this.posy + this.height / 2)) / (this.height / 2);
             ball.vely = intersectPoint * MAX_SPIN_VELOCITY;
-
-            return SIDE.NONE;
         }
 
         return SIDE.NONE;
