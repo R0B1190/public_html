@@ -11,11 +11,13 @@ html {
 }
 
 h1 {
-    font-size: 5vh; /* Revert to viewport height based scaling for titles */
+    font-size: 5vh;
+    /* Revert to viewport height based scaling for titles */
 }
 
 h2 {
-    font-size: 3vh; /* Revert to viewport height based scaling for titles */
+    font-size: 3vh;
+    /* Revert to viewport height based scaling for titles */
 }
 
 body {
@@ -32,19 +34,22 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    margin: 0; /* Remove default browser margin */
+    margin: 0;
+    /* Remove default browser margin */
 }
 
 #header {
     padding: 0.5rem 1rem;
-    margin: 1rem 1rem 0 1rem; /* Add margin to the header */
+    margin: 1rem 1rem 0 1rem;
+    /* Add margin to the header */
     background: rgba(0, 0, 0, 0.2);
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
     border-radius: 1rem;
 }
 
-#header h1, #header h2 {
+#header h1,
+#header h2 {
     margin: 0.25rem 0;
 }
 
@@ -63,8 +68,10 @@ body {
     /* Let the game body grow to fill available space instead of a fixed height */
     flex-grow: 1;
     width: 100vw;
-    min-height: 0; /* Fix for nested flex containers */
-    padding: 1rem; /* Add some padding around the game body */
+    min-height: 0;
+    /* Fix for nested flex containers */
+    padding: 1rem;
+    /* Add some padding around the game body */
     box-sizing: border-box;
 }
 
@@ -73,8 +80,10 @@ body {
     /* Occupy 70% of width, don't grow or shrink */
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ensure it fills the height of game-body */
-    gap: 1rem; /* Add a gap between the store and widget containers */
+    height: 100%;
+    /* Ensure it fills the height of game-body */
+    gap: 1rem;
+    /* Add a gap between the store and widget containers */
 }
 
 
@@ -89,15 +98,20 @@ body {
 
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem; /* Add a gap between store items */
+    gap: 1rem;
+    /* Add a gap between store items */
     justify-content: flex-start;
-    align-content: flex-start; /* Pack items to the top */
+    align-content: flex-start;
+    /* Pack items to the top */
 
     z-index: 1;
     overflow-y: auto;
-    position: relative; /* Needed for positioning the button */
-    flex: 3; /* Set flex-grow to 3 for a 30% height ratio */
-    min-height: 0; /* Prevent flexbox overflow */
+    position: relative;
+    /* Needed for positioning the button */
+    flex: 3;
+    /* Set flex-grow to 3 for a 30% height ratio */
+    min-height: 0;
+    /* Prevent flexbox overflow */
 }
 
 #auto-buy-toggle {
@@ -107,7 +121,8 @@ body {
     padding: 0.5rem 1rem;
     cursor: pointer;
     border-radius: 0.5rem;
-    z-index: 2; /* Ensure it's on top of store items */
+    z-index: 2;
+    /* Ensure it's on top of store items */
     /* Glassmorphism style */
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -121,7 +136,8 @@ body {
 }
 
 #auto-buy-toggle.active {
-    background-color: rgba(76, 175, 80, 0.5); /* Semi-transparent green */
+    background-color: rgba(76, 175, 80, 0.5);
+    /* Semi-transparent green */
     border-color: rgba(76, 175, 80, 0.8);
     color: white;
 }
@@ -133,7 +149,7 @@ body {
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1rem;
-    
+
     width: 30%;
 
     /* Take up the remaining horizontal space */
@@ -141,25 +157,29 @@ body {
     /* Crucial for positioning Gompeis */
     overflow: hidden;
     /* Hide Gompeis that might be placed outside */
-    margin-left: 1rem; /* Add some space */
+    margin-left: 1rem;
+    /* Add some space */
 }
 
 .pasture-gompei {
     position: absolute;
-    width: 50px; /* Revert to fixed size */
+    width: 50px;
+    /* Revert to fixed size */
     height: auto;
 }
 
 .pasture-supergompei {
     position: absolute;
-    width: 100px; /* Revert to fixed size */
+    width: 100px;
+    /* Revert to fixed size */
     height: auto;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     filter: hue-rotate(180deg) sepia(calc(var(--gompei-count) * 10%)) saturate(calc(clamp(0, var(--gompei-count), 10) * 40% + 100%));
     z-index: 1;
-    transition: transform 0.5s ease-out, width 0.5s ease-out; /* Smooth transition for growth */
+    transition: transform 0.5s ease-out, width 0.5s ease-out;
+    /* Smooth transition for growth */
 }
 
 #widget-container {
@@ -173,13 +193,17 @@ body {
 
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem; /* Add a gap between widgets */
+    gap: 1rem;
+    /* Add a gap between widgets */
     justify-content: flex-start;
-    align-content: flex-start; /* Pack items to the top */
+    align-content: flex-start;
+    /* Pack items to the top */
 
     overflow-y: auto;
-    flex: 7; /* Set flex-grow to 7 for a 70% height ratio */
-    min-height: 0; /* Prevent flexbox overflow */
+    flex: 7;
+    /* Set flex-grow to 7 for a 70% height ratio */
+    min-height: 0;
+    /* Prevent flexbox overflow */
 }
 
 #super-gompei {
@@ -193,13 +217,15 @@ body {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    
+
     text-align: center;
     cursor: pointer;
-    color: white; /* Change text to white for readability */
+    color: white;
+    /* Change text to white for readability */
     position: relative;
     padding: 0.5rem;
-    width: var(--widget-width); /* Give store items a fixed width */
+    width: var(--widget-width);
+    /* Give store items a fixed width */
 }
 
 .store p {
@@ -214,14 +240,16 @@ body {
 
     width: var(--widget-width);
     height: var(--widget-height);
-    margin: 0; /* Margin is now handled by the container's gap */
+    margin: 0;
+    /* Margin is now handled by the container's gap */
 
     cursor: pointer;
 
     overflow: hidden;
     color: white;
     position: relative;
-    border-radius: 0.5rem; /* Add border-radius */
+    border-radius: 0.5rem;
+    /* Add border-radius */
 }
 
 .store[broke] {
@@ -234,13 +262,15 @@ body {
 
 /* If the widget is an automatic widget */
 .widget[auto="true"] {
-    background-color: rgba(0, 128, 0, 0.5); /* Semi-transparent green */
+    background-color: rgba(0, 128, 0, 0.5);
+    /* Semi-transparent green */
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* If the widget is a click widget */
 .widget:not([auto="true"]) {
-    background-color: rgba(50, 205, 50, 0.5); /* Semi-transparent limegreen */
+    background-color: rgba(50, 205, 50, 0.5);
+    /* Semi-transparent limegreen */
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -303,4 +333,24 @@ body {
     100% {
         width: 0%;
     }
+}
+
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        /* Use a CSS variable for the scale, with 1.15 as a fallback */
+        transform: scale(var(--pulse-scale, 1.15));
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulsing {
+    /* The animation will now use the --pulse-scale variable if it's set */
+    animation: pulse-animation 0.4s ease-out;
 }
