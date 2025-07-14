@@ -253,38 +253,46 @@ function buy(store) {
 }
 
 function startCooldown(widget) {
-    // Set harvesting flag to start animation
+    // Set the time when this widget will be ready for the game tick to harvest it.
+    const cooldownMs = parseFloat(widget.getAttribute("cooldown")) * 1000;
+    widget.dataset.harvestReadyAt = Date.now() + cooldownMs;
+
+    // Set the "harvesting" attribute to trigger the CSS animation.
     widget.setAttribute("harvesting", "");
-    // Set timeout to end harvest
-    setup_end_harvest(widget);
+
+    // Set a separate, simple timer JUST to remove the visual attribute after the animation.
+    // This decouples the animation from the game logic.
+    setTimeout(() => {
+        widget.removeAttribute("harvesting");
+    }, cooldownMs);
 }
 
-function setup_end_harvest(widget) {
-    setTimeout(() => {
-        // Remove the harvesting flag
-        widget.removeAttribute("harvesting");
-        // If automatic, start again and collect points
-        if (widget.getAttribute("auto") == 'true') {
-            harvest(widget);
-        }
-        // If lawn mower is active and this is a lawn plot, harvest it
-        else if (lawnMowerActive && !widget.querySelector("#super-gompei")) {
-            harvest(widget);
-        }
-    }, parseFloat(widget.getAttribute("cooldown")) * 1000);
-}
+// function setup_end_harvest(widget) {
+//     setTimeout(() => {
+//         // Remove the harvesting flag
+//         widget.removeAttribute("harvesting");
+//         // If automatic, start again and collect points
+//         if (widget.getAttribute("auto") == 'true') {
+//             harvest(widget);
+//         }
+//         // If lawn mower is active and this is a lawn plot, harvest it
+//         else if (lawnMowerActive && !widget.querySelector("#super-gompei")) {
+//             harvest(widget);
+//         }
+//     }, parseFloat(widget.getAttribute("cooldown")) * 1000);
+// }
 
 function harvest(widget, is_manual_click = false) {
-    // Only run if currently not harvesting
+    // Only run if currently not in a cooldown animation.
     if (widget.hasAttribute("harvesting")) {
         return;
     }
 
-    // For all harvests (auto, manual click, lawnmower), give points.
+    // Manual clicks give points instantly for better player feedback.
     changeScore(parseInt(widget.getAttribute("reap")));
     showPoint(widget);
 
-    // Then, start the cooldown period.
+    // Then, start the cooldown period (both the visual animation and the logic timer).
     startCooldown(widget);
 }
 
@@ -442,7 +450,53 @@ function createAutoBuyButton() {
     });
 }
 
+
+
+// ==================================================
+// === TICK SYSTEM ==================================
+// ==================================================
+
+const TICK_RATE_MS = 100; // The game will process logic 10 times per second.
+
+function gameTick() {
+    let scoreGeneratedThisTick = 0;
+    const now = Date.now();
+
+    // Loop through all active widgets on the field.
+    for (const widget of widget_container.children) {
+        // Skip widgets that don't have a harvest time (like the initial Super-Gompei template).
+        if (!widget.dataset.harvestReadyAt) {
+            continue;
+        }
+
+        const harvestReadyAt = parseFloat(widget.dataset.harvestReadyAt);
+
+        // Check if the widget's cooldown has finished.
+        if (now >= harvestReadyAt) {
+            const isAuto = widget.getAttribute("auto") === 'true';
+            // Check if it's a lawn that the lawn mower should harvest.
+            const isMowableLawn = lawnMowerActive && widget.getAttribute('data-type') === 'Lawn';
+
+            if (isAuto || isMowableLawn) {
+                // Add this widget's points to our batch for this tick.
+                scoreGeneratedThisTick += parseInt(widget.getAttribute("reap"));
+                showPoint(widget);
+
+                // Reset the timer for the next cooldown and restart the visual animation.
+                startCooldown(widget);
+            }
+        }
+    }
+
+    // If we collected any points in this tick, update the main score.
+    if (scoreGeneratedThisTick > 0) {
+        changeScore(scoreGeneratedThisTick);
+    }
+}
+
 // Initial game setup
 initializeStore();
 createAutoBuyButton();
 changeScore(0); // Initial call to set store availability
+// Start the game loop after the rest of the script is initialized.
+setInterval(gameTick, TICK_RATE_MS);
