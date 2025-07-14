@@ -120,7 +120,7 @@ class Paddle {
             const clampedRatio = Math.max(-1, Math.min(1, intersectRatio));
             ball.vely = clampedRatio * MAX_SPIN_VELOCITY;
 
-            return SIDE.NONE; // Or return a value indicating a collision occurred if needed
+            return this.side; // Return the side of the paddle that was hit
         }
 
         return SIDE.NONE;

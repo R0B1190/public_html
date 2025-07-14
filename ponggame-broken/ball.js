@@ -21,11 +21,14 @@ class Ball {
     bounce(things) {
         this.bounceWalls();
         for (let thing of things) {
-            let side = thing.bounce(this);
-            if (side != SIDE.NONE) return side;
+            // thing.bounce() will return the side of the paddle if a collision occurred.
+            let paddleSideHit = thing.bounce(this);
+            if (paddleSideHit !== SIDE.NONE) {
+                return SIDE.NONE; // A paddle was hit, so no point is scored.
+            }
         }
-        if (this.posx + BALL_RADIUS > BOARD_WIDTH) return SIDE.RIGHT; // Someone got a point...
-        if (this.posx - BALL_RADIUS < 0) return SIDE.LEFT; // Someone got a point...
+        if (this.posx + BALL_RADIUS > BOARD_WIDTH) return SIDE.RIGHT; // Right paddle missed, point for left player.
+        if (this.posx - BALL_RADIUS < 0) return SIDE.LEFT; // Left paddle missed, point for right player.
 
         return SIDE.NONE;
     }
@@ -38,29 +41,4 @@ class Ball {
             this.vely = -Math.abs(this.vely);
         }
     }
-
-    // bounceLeftPaddle(paddle) {
-    //     if (this.posx - BALL_RADIUS > paddle.width) return SIDE.NONE;
-    //     if (this.posx - BALL_RADIUS < 0) return SIDE.RIGHT; // Someone got a point...
-    //     if (this.posy < paddle.posy) return SIDE.NONE;
-    //     if (this.posy > paddle.posy + paddle.height) return SIDE.NONE;
-    //     if (this.velx < 0) {
-    //         this.velx = PADDLE_FORCE * Math.abs(this.velx);
-    //         // add other spin, etc.
-    //     }
-    //     return SIDE.NONE;
-    // }
-
-    // bounceRightPaddle(paddle) {
-    //     if (this.posx + BALL_RADIUS < paddle.posx) return SIDE.NONE;
-    //     if (this.posx + BALL_RADIUS > paddle.posx + paddle.width) return SIDE.LEFT; // Someone got a point...
-    //     if (this.posy < paddle.posy) return SIDE.NONE;
-    //     if (this.posy > paddle.posy + paddle.height) return SIDE.NONE;
-    //     if (this.velx > 0) {
-    //         this.velx = -PADDLE_FORCE * Math.abs(this.velx);
-    //         // add other spin, etc.
-    //         // add sound?
-    //     }
-    //     return SIDE.NONE;
-    // }
 }
