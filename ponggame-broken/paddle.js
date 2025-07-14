@@ -59,6 +59,17 @@ class Paddle {
     bounce(ball) {
         let bounce_dir = Math.sign(BOARD_WIDTH / 2 - this.posx);
         // Check for collision using the edges of the ball and paddle
+        if (ball.velx > this.width) { // Tunneling catch.
+            // linear equation.
+            let m = (ball.vely / ball.velx);
+            ball.posy = ball.posy + m * (this.posx - ball.posx);
+            ball.posx = this.posx + this.width / 2
+
+            // consol log params
+
+            console.log(`Tunneling catch: ball pos (${ball.posx}, ${ball.posy}), paddle pos (${this.posx}, ${this.posy}), width ${this.width}, height ${this.height}`);
+        }
+
         if (ball.posy + BALL_RADIUS >= this.posy && ball.posy - BALL_RADIUS <= this.posy + this.height && // within y
             (ball.posx - BALL_RADIUS <= this.posx + this.width && ball.posx + BALL_RADIUS >= this.posx) &&  // within x 
             ball.velx * bounce_dir < 0 // ball going into wall
@@ -66,6 +77,7 @@ class Paddle {
             ball.velx = bounce_dir * PADDLE_FORCE * Math.abs(ball.velx);
             return SIDE.NONE;
         }
+
 
         return SIDE.NONE;
     }
