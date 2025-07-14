@@ -49,7 +49,7 @@
         #game-container {
             width: 100%;
             max-width: 800px;
-            aspect-ratio: 800 / 600;
+            aspect-ratio: 16 / 9;
             background-color: #000; /* Black for letterboxing */
             position: relative; /* For positioning children like the start menu and fullscreen button */
             margin: 20px auto; /* Center the container */
@@ -66,8 +66,8 @@
 
         #game-viewport {
             width: 800px;
-            height: 600px;
-            background-color: #444; /* The actual game background */
+            height: 450px; /* 16:9 aspect ratio with 800px width */
+            background-color: #444; /* The actual game background */ 
             position: absolute; /* Take out of flow to allow parent to scale correctly */
             top: 50%;
             left: 50%;
@@ -121,7 +121,7 @@
 
         #obstacle-rectangle {
             width: 100px;
-            height: 566px; /* Made slightly shorter to allow squished player to pass under */
+            height: 416px; /* Adjusted for 16:9 aspect ratio to allow squished player to pass under */
             background: linear-gradient(to right, #d00, #a00); /* Gradient for shape */
             border-left: 2px solid #f33; /* Highlight */
             border-right: 2px solid #800; /* Shadow */
@@ -463,8 +463,8 @@
         
         // Game world constants
         const GAME_WIDTH = 800;
-        const GAME_HEIGHT = 600;
-        const BORDER_WIDTH = 4; // Corresponds to the CSS border width
+        const GAME_HEIGHT = 450; // 16:9 aspect ratio
+        const BORDER_WIDTH = 4;  // Corresponds to the CSS border width
 
         // Player state
         let x;
