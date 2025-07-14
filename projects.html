@@ -419,6 +419,7 @@
         const btnDown = document.getElementById('btn-down');
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isStandalone = window.navigator.standalone === true; // Check for iOS Home Screen app mode
         
         // Game world constants
         const GAME_WIDTH = 800;
@@ -785,17 +786,20 @@
         // --- Fullscreen Button Logic ---
         const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
 
-        if (fullscreenAPISupported) {
-            // Standard fullscreen support found, attach the normal listener.
+        if (isStandalone) {
+            // App is running from the Home Screen on iOS, it's already "fullscreen". Hide the button.
+            fullscreenBtn.style.display = 'none';
+        } else if (fullscreenAPISupported) {
+            // Standard fullscreen support found (e.g., Android, Desktop), attach the normal listener.
             fullscreenBtn.addEventListener('click', toggleFullScreen);
         } else if (isIOS) {
-            // On iOS, the standard API isn't supported for elements.
-            // Show the button and guide the user to "Add to Home Screen" for a fullscreen-like experience.
+            // On iOS in the browser, the standard API isn't supported for elements.
+            // Show the button and guide the user to "Add to Home Screen".
             fullscreenBtn.addEventListener('click', () => {
                 alert('For a fullscreen experience on iOS, tap the Share button and then "Add to Home Screen".');
             });
         } else {
-            // No fullscreen support found, hide the button.
+            // No fullscreen support found on other browsers, hide the button.
             fullscreenBtn.style.display = 'none';
         }
 
