@@ -61,24 +61,30 @@ class Paddle {
     }
 
     bounce(ball) {
-        let bounce_dir = Math.sign(BOARD_WIDTH / 2 - this.posx);
-        // Check for collision using the edges of the ball and paddle
-        if (ball.velx > this.width || -ball.velx > this.width) { // Tunneling catch.
-            // linear equation.
-            let m = (ball.vely / ball.velx);
-            ball.posy = ball.posy + m * (this.posx - ball.posx);
-            ball.posx = this.posx + this.width / 2
+        // Simplified collision and bounce logic
+        const paddleTop = this.posy;
+        const paddleBottom = this.posy + this.height;
+        const paddleLeft = this.posx;
+        const paddleRight = this.posx + this.width;
 
-            // consol log params
+        const ballTop = ball.posy - BALL_RADIUS;
+        const ballBottom = ball.posy + BALL_RADIUS;
+        const ballLeft = ball.posx - BALL_RADIUS;
+        const ballRight = ball.posx + BALL_RADIUS;
 
-            console.log(`Tunneling catch: ball pos (${ball.posx}, ${ball.posy}), paddle pos (${this.posx}, ${this.posy}), width ${this.width}, height ${this.height}`);
-        }
+        // AABB collision detection that checks if the ball is moving towards the paddle
+        const isMovingTowards = (this.side === SIDE.LEFT && ball.velx < 0) || (this.side === SIDE.RIGHT && ball.velx > 0);
 
-        if (ball.posy + BALL_RADIUS >= this.posy && ball.posy - BALL_RADIUS <= this.posy + this.height && // within y
-            (ball.posx - BALL_RADIUS <= this.posx + this.width && ball.posx + BALL_RADIUS >= this.posx) &&  // within x 
-            ball.velx * bounce_dir < 0 // ball going into wall
-        ) {
-            ball.velx = bounce_dir * PADDLE_FORCE * Math.abs(ball.velx);
+        if (isMovingTowards && ballRight > paddleLeft && ballLeft < paddleRight && ballBottom > paddleTop && ballTop < paddleBottom) {
+            // Reverse horizontal velocity and apply force
+            ball.velx *= -1;
+            ball.velx *= PADDLE_FORCE;
+
+            // Add "spin" to the ball based on where it hit the paddle
+            const MAX_SPIN_VELOCITY = 7; // Maximum vertical speed change from spin
+            let intersectPoint = (ball.posy - (this.posy + this.height / 2)) / (this.height / 2);
+            ball.vely = intersectPoint * MAX_SPIN_VELOCITY;
+
             return SIDE.NONE;
         }
 
@@ -86,16 +92,3 @@ class Paddle {
         return SIDE.NONE;
     }
 }
-
-// function bounceRightPaddle(paddle) {
-//     if (this.posx + BALL_RADIUS < paddle.posx) return SIDE.NONE;
-//     if (this.posx + BALL_RADIUS > paddle.posx + paddle.width) return SIDE.LEFT; // Someone got a point...
-//     if (this.posy < paddle.posy) return SIDE.NONE;
-//     if (this.posy > paddle.posy + paddle.height) return SIDE.NONE;
-//     if (this.velx > 0) {
-//         this.velx = -PADDLE_FORCE * Math.abs(this.velx);
-//         // add other spin, etc.
-//         // add sound?
-//     }
-//     return SIDE.NONE;
-// }
