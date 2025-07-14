@@ -6,6 +6,9 @@
     <title>Game</title>
     <meta name="generator" content="thesitewizard.com's Layout Wizard 4.0.0">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Meta tags for a better mobile experience, especially on iOS for "Add to Home Screen" -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="stylesheet" type="text/css" media="all" href="styles.css">
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
@@ -415,6 +418,7 @@
         const btnUp = document.getElementById('btn-up');
         const btnDown = document.getElementById('btn-down');
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         
         // Game world constants
         const GAME_WIDTH = 800;
@@ -778,15 +782,21 @@
             }
         }
 
-        // Hide button if API not supported, otherwise attach listener
-        // Check if the Fullscreen API is enabled in the browser, which is more reliable across devices
-        // than checking for the request method on a specific element.
+        // --- Fullscreen Button Logic ---
         const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
-        
-        if (!fullscreenAPISupported) {
-            fullscreenBtn.style.display = 'none';
-        } else {
+
+        if (fullscreenAPISupported) {
+            // Standard fullscreen support found, attach the normal listener.
             fullscreenBtn.addEventListener('click', toggleFullScreen);
+        } else if (isIOS) {
+            // On iOS, the standard API isn't supported for elements.
+            // Show the button and guide the user to "Add to Home Screen" for a fullscreen-like experience.
+            fullscreenBtn.addEventListener('click', () => {
+                alert('For a fullscreen experience on iOS, tap the Share button and then "Add to Home Screen".');
+            });
+        } else {
+            // No fullscreen support found, hide the button.
+            fullscreenBtn.style.display = 'none';
         }
 
         // --- Mobile Control Setup ---
