@@ -827,8 +827,12 @@
         const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
 
         if (isStandalone) {
-            // App is running from the Home Screen on iOS, it's already "fullscreen". Hide the button.
-            fullscreenBtn.style.display = 'none';
+            // App is running from the Home Screen on iOS. The button will toggle the "standalone-mode" class.
+            fullscreenBtn.addEventListener('click', () => {
+                document.body.classList.toggle('standalone-mode');
+                // Wait for the DOM to reflow before resizing the game.
+                setTimeout(resizeGame, 0);
+            });
         } else if (fullscreenAPISupported) {
             // Standard fullscreen support found (e.g., Android, Desktop), attach the normal listener.
             fullscreenBtn.addEventListener('click', toggleFullScreen);
