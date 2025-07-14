@@ -42,10 +42,23 @@ function draw_ball(ctx, ball) {
 }
 
 function draw_paddle(ctx, paddle) {
+    const x = paddle.posx;
+    const y = paddle.posy;
+    const w = paddle.width;
+    const h = paddle.height;
+    const r = 10; // Corner radius for the rounded rectangle
+
     ctx.save();
     ctx.fillStyle = paddle.color;
     ctx.shadowColor = paddle.color;
     ctx.shadowBlur = 15;
-    ctx.fillRect(paddle.posx, paddle.posy, paddle.width, paddle.height);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
 }
