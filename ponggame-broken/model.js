@@ -1,4 +1,5 @@
 const STATE = { STARTUP: 0, PLAYING: 1, GAMEOVER: 2 };
+const CPU_DIFFICULTY = { EASY: 0, MEDIUM: 1, HARD: 2 };
 
 const BOARD_WIDTH = 500;
 const BOARD_HEIGHT = 500;
@@ -15,6 +16,7 @@ class Model {
     scoreL = 0;
     scoreR = 0;
     is_cpu = false;
+    cpu_difficulty = CPU_DIFFICULTY.EASY;
     state = STATE.STARTUP;
     intervalID = -1;
 

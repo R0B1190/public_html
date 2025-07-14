@@ -16,14 +16,39 @@ class Paddle {
         this.vely = 0;
     }
 
-    move(is_cpu, ball) {
+    move(is_cpu, ball, difficulty) {
         if (is_cpu) {
-            // Simple AI: try to center the paddle on the ball
             const paddleCenter = this.posy + this.height / 2;
-            if (paddleCenter < ball.posy - 10) { // a small deadzone to prevent jittering
-                this.vely = PADDLE_VELOCITY;
-            } else if (paddleCenter > ball.posy + 10) {
-                this.vely = -PADDLE_VELOCITY;
+            const targetY = ball.posy;
+            let deadzone = 10;
+            let speed_mod = 1.0;
+            let should_move = false;
+
+            switch (difficulty) {
+                case CPU_DIFFICULTY.HARD:
+                    should_move = true; // Always follow the ball
+                    deadzone = 5;       // More precise
+                    speed_mod = 1.0;    // Normal speed
+                    break;
+                case CPU_DIFFICULTY.MEDIUM:
+                    // Only follow when ball is coming towards the paddle
+                    should_move = (ball.velx > 0);
+                    deadzone = 10;
+                    speed_mod = 0.9;    // Slightly slower
+                    break;
+                case CPU_DIFFICULTY.EASY:
+                default:
+                    // Follow if ball is on the CPU's half of the board
+                    should_move = (ball.posx > BOARD_WIDTH / 2);
+                    deadzone = 15;      // Less precise
+                    speed_mod = 0.8;    // Slower
+                    break;
+            }
+
+            if (should_move) {
+                if (paddleCenter < targetY - deadzone) this.vely = PADDLE_VELOCITY * speed_mod;
+                else if (paddleCenter > targetY + deadzone) this.vely = -PADDLE_VELOCITY * speed_mod;
+                else this.vely = 0;
             } else {
                 this.vely = 0;
             }

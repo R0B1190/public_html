@@ -20,8 +20,14 @@
     <div id="scoreboard">0 : 0</div>
     <button id="reset" onclick="resetGame()">RESET</button>
     <br />
-    <input type="checkbox" id="cpucheck" onchange="set_cpu(event)">
-    <label>CPU Play</label>
+    <input type="checkbox" id="cpucheck" onchange="set_cpu(event)" />
+    <label for="cpucheck">CPU opponent</label>
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty">
+        <option value="0">Easy</option>
+        <option value="1">Medium</option>
+        <option value="2">Hard</option>
+    </select>
 
 </body>
 </html>

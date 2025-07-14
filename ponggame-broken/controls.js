@@ -1,4 +1,7 @@
 window.addEventListener("keydown", keyDown);
+const difficulty_selector = document.getElementById("difficulty");
+if (difficulty_selector) difficulty_selector.addEventListener("change", set_difficulty);
+
 function keyDown(event) {
     const key = event.code;
     // console.log(`KEYDOWN: ${key}`);
@@ -46,4 +49,8 @@ function resetGame() {
 
 function set_cpu(event) {
     model.is_cpu = event.target.checked;
+}
+
+function set_difficulty(event) {
+    model.cpu_difficulty = parseInt(event.target.value);
 }
