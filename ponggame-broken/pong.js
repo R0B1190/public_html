@@ -17,8 +17,8 @@ function onTick() {
 }
 
 function play() {
-    model.paddleL.move(false, model.ball, model.cpu_difficulty);
-    model.paddleR.move(model.is_cpu, model.ball, model.cpu_difficulty);
+    model.paddleL.move(model.cpu_left, model.ball, model.cpu_difficulty);
+    model.paddleR.move(model.cpu_right, model.ball, model.cpu_difficulty);
     let scoreSide = model.ball.bounce([model.paddleL, model.paddleR]);
     if (scoreSide != SIDE.NONE) {
         if (scoreSide == SIDE.LEFT) model.scoreR++;
