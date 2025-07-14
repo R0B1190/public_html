@@ -4,6 +4,12 @@ function keyDown(event) {
     // console.log(`KEYDOWN: ${key}`);
 
     switch (key) {
+        case "KeyW":
+            model.paddleL.vely = -PADDLE_VELOCITY;
+            break;
+        case "KeyS":
+            model.paddleL.vely = PADDLE_VELOCITY;
+            break;
         case "ArrowUp":
             model.paddleR.vely = -PADDLE_VELOCITY;
             break;
@@ -22,6 +28,10 @@ function keyUp(event) {
     // console.log(`KEYUP: ${key}`);
 
     switch (key) {
+        case "KeyW":
+        case "KeyS":
+            model.paddleL.vely = 0;
+            break;
         case "ArrowUp":
         case "ArrowDown":
             model.paddleR.vely = 0;

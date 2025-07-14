@@ -16,9 +16,13 @@ function draw_game(model) {
 }
 
 function draw_ball(ctx, ball) {
-
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(ball.posx, ball.posy, BALL_RADIUS, 0, 2 * Math.PI);
+    ctx.fill();
 }
 
 function draw_paddle(ctx, paddle) {
-    
+    ctx.fillStyle = paddle.color;
+    ctx.fillRect(paddle.posx, paddle.posy, paddle.width, paddle.height);
 }
