@@ -415,7 +415,8 @@
                         <li><a href="index.html">Home</a></li>
                         <li><a href="aboutme.html">Page 2</a></li>
                         <li><a href="projects.html">Game</a></li>
-                        <li><a href="word_fold/game.html">Game 2</a></li>
+                        <li><a href="word_fold/game.html">Word Fold</a></li>
+                        <li><a href = "clickgame-broken/index.html">Gompie's Grass Game</a></li>
                     </ul>
                 </div>
 
@@ -826,8 +827,9 @@
         // --- Fullscreen Button Logic ---
         const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
 
-        if (isStandalone) {
-            // App is running from the Home Screen on iOS. The button will toggle the "standalone-mode" class.
+        // On any iOS device (in-browser or standalone), we use a CSS class toggle for a "focus mode"
+        // because the Fullscreen API for elements is not supported.
+        if (isIOS) {
             fullscreenBtn.addEventListener('click', () => {
                 document.body.classList.toggle('standalone-mode');
                 // Wait for the DOM to reflow before resizing the game.
@@ -836,12 +838,6 @@
         } else if (fullscreenAPISupported) {
             // Standard fullscreen support found (e.g., Android, Desktop), attach the normal listener.
             fullscreenBtn.addEventListener('click', toggleFullScreen);
-        } else if (isIOS) {
-            // On iOS in the browser, the standard API isn't supported for elements.
-            // Show the button and guide the user to "Add to Home Screen".
-            fullscreenBtn.addEventListener('click', () => {
-                alert('For a fullscreen experience on iOS, tap the Share button and then "Add to Home Screen".');
-            });
         } else {
             // No fullscreen support found on other browsers, hide the button.
             fullscreenBtn.style.display = 'none';
