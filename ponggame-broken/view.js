@@ -1,6 +1,5 @@
 const canvas = document.getElementById("gameboard");
 const ctx = canvas.getContext("2d");
-const cpucheck = document.getElementById("cpucheck");
 const scoreboard = document.getElementById("scoreboard");
 
 function updateScore(model) {
