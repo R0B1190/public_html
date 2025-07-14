@@ -21,8 +21,8 @@ function play() {
     model.paddleR.move(model.is_cpu, model.ball);
     let scoreSide = model.ball.bounce([model.paddleL, model.paddleR]);
     if (scoreSide != SIDE.NONE) {
-        if (scoreSide == SIDE.LEFT) model.scoreL++;
-        if (scoreSide == SIDE.RIGHT) model.scoreR++;
+        if (scoreSide == SIDE.LEFT) model.scoreR++;
+        if (scoreSide == SIDE.RIGHT) model.scoreL++;
         updateScore(model);
         model.resetBall();
         if (model.scoreL > 10 || model.scoreR > 10) return STATE.GAMEOVER;
