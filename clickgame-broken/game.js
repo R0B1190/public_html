@@ -44,6 +44,25 @@ function changeScore(amount) {
     score_element.innerHTML = `Score: ${score}`;
     //set score element
 
+    // pulse effect
+    if (amount > 0) {
+        // Calculate a dynamic scale based on the score increase.
+        // It starts at 1.1x and grows, but we cap it to prevent it from getting too large.
+        const dynamicScale = 1.1 + Math.min(amount / (score + 200), 0.4); // Caps the bonus scale at +0.4 (total 1.5x)
+        score_element.style.setProperty('--pulse-scale', dynamicScale);
+
+        // This is the key to re-triggering the animation:
+        // 1. Remove the class to reset the state.
+        score_element.classList.remove("pulsing");
+
+        // 2. Force a browser "reflow". Accessing offsetWidth makes the browser
+        //    process the class removal before moving on.
+        void score_element.offsetWidth;
+
+        // 3. Re-add the class to start the animation again from the beginning.
+        score_element.classList.add("pulsing");
+    }
+
     // Update the stores to show ones that are too expensive
     for (let store of stores) {
         let cost = parseInt(store.getAttribute("cost"));
@@ -63,7 +82,7 @@ function changeScore(amount) {
 function buy(store) {
     const cost = parseInt(store.getAttribute("cost"));
 
-    if ( score < cost ) {
+    if (score < cost) {
         return
     }
 
@@ -134,23 +153,23 @@ function buy(store) {
         super_gompei_count += 1;
         document.body.style.setProperty("--gompei-count", super_gompei_count);
         const super_gompei_widget = document.querySelector("#widget-container #super-gompei")?.parentElement;
-        
+
         // If Super-Gompei already exists
         if (super_gompei_widget) {
             const reapToAdd = 100; // Each purchase adds 100 to the total.
             const newTotalReap = parseInt(super_gompei_widget.getAttribute("reap")) + reapToAdd;
             super_gompei_widget.setAttribute("reap", newTotalReap);
-            
+
             // Also update the template in the store so the text reflects the new total
             const templateWidget = store.querySelector('.widget');
             templateWidget.setAttribute("reap", newTotalReap);
-            
+
             // Now update the display text.
             const scoreTextParagraph = Array.from(store.getElementsByTagName("p")).find(p => p.textContent.includes('sqft'));
             if (scoreTextParagraph) {
                 scoreTextParagraph.textContent = `+${newTotalReap} sqft`;
             }
-            
+
         } else {
             const pastureGompei = document.createElement('img');
             // Correctly get the image source from the store's display widget
@@ -171,11 +190,11 @@ function buy(store) {
             // We use super_gompei_count - 1 because the first purchase (count=1) should be the base size (n=0).
             const purchases = super_gompei_count - 1;
             const newSize = maxSize - (maxSize - initialSize) * Math.pow(growthFactor, purchases);
-            
+
             pasture_gompei_img.style.width = `${newSize}px`;
         }
 
-        if (super_gompei_widget){
+        if (super_gompei_widget) {
             return;
         }
     }
@@ -215,7 +234,7 @@ function buy(store) {
         pastureGompei.style.transform = `rotate(${randomRotation}deg)`;
 
         lawn_div.appendChild(pastureGompei);
-        console.log(randomTop,randomLeft);
+        console.log(randomTop, randomLeft);
     }
 
 
@@ -335,7 +354,7 @@ function createStoreItemElement(item) {
         overlay.style.animationDuration = item.cooldown + 's';
         displayWidget.appendChild(overlay);
     }
-    
+
     storeItem.appendChild(displayWidget);
 
     // Add text descriptions
@@ -352,7 +371,7 @@ function createStoreItemElement(item) {
         descP.textContent = item.description;
         storeItem.appendChild(descP);
     }
-    
+
     if (item.cooldown) {
         const cooldownP = document.createElement('p');
         cooldownP.textContent = `${item.cooldown}s`;
@@ -360,7 +379,7 @@ function createStoreItemElement(item) {
     }
 
     // Attach event listeners for speed buy
-    storeItem.onmousedown = function() { startSpeedBuy(this); };
+    storeItem.onmousedown = function () { startSpeedBuy(this); };
     storeItem.onmouseup = stopSpeedBuy;
     storeItem.onmouseleave = stopSpeedBuy;
 
@@ -408,7 +427,7 @@ function createAutoBuyButton() {
     autoBuyButton.id = 'auto-buy-toggle';
     autoBuyButton.textContent = 'Auto-Buy: OFF';
     autoBuyButton.title = 'When ON, automatically buys the cheapest available item.';
-    
+
     const storeContainer = document.getElementById('store-container');
     storeContainer.appendChild(autoBuyButton);
 
