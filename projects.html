@@ -48,11 +48,8 @@
             max-width: 800px;
             aspect-ratio: 800 / 600;
             background-color: #000; /* Black for letterboxing */
-            border: 4px solid;
-            border-color: #2a2a2a; /* Dark border */
             position: relative; /* For positioning children like the start menu and fullscreen button */
             margin: 20px auto; /* Center the container */
-            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
             border-radius: 15px; /* Rounded corners */
             overflow: hidden; /* This is the key to clip the child viewport's corners */
         }
@@ -73,6 +70,21 @@
             left: 50%;
             overflow: hidden; /* Keeps player and obstacles inside */
             transform-origin: center; /* Scale/transform from the center */
+            border-radius: 15px;
+        }
+
+        #game-viewport::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit; /* Match the viewport's corners */
+            /* The border and shadow are applied here to act as an overlay */
+            box-shadow: inset 0 0 0 4px #2a2a2a, inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 2; /* Above game elements, below UI like score/controls */
+            pointer-events: none; /* Don't block mouse/touch events */
         }
 
         #player-circle {
@@ -106,7 +118,7 @@
 
         #obstacle-rectangle {
             width: 100px;
-            height: 570px;
+            height: 566px; /* Made slightly shorter to allow squished player to pass under */
             background: linear-gradient(to right, #d00, #a00); /* Gradient for shape */
             border-left: 2px solid #f33; /* Highlight */
             border-right: 2px solid #800; /* Shadow */
@@ -407,6 +419,7 @@
         // Game world constants
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 600;
+        const BORDER_WIDTH = 4; // Corresponds to the CSS border width
 
         // Player state
         let x;
@@ -622,11 +635,13 @@
             y += vy;
 
             // Enforce container boundaries
-            const maxX = GAME_WIDTH - player.offsetWidth;
-            const maxY = GAME_HEIGHT - player.offsetHeight;
+            const minX = BORDER_WIDTH;
+            const maxX = GAME_WIDTH - player.offsetWidth - BORDER_WIDTH;
+            const minY = BORDER_WIDTH;
+            const maxY = GAME_HEIGHT - player.offsetHeight - BORDER_WIDTH;
 
             // Horizontal boundaries
-            x = Math.max(0, Math.min(maxX, x));
+            x = Math.max(minX, Math.min(maxX, x));
 
             // Vertical boundaries (ground check)
             if (y >= maxY) {
@@ -638,8 +653,8 @@
             }
 
             // Vertical boundaries (ceiling check)
-            if (y < 0) {
-                y = 0;
+            if (y < minY) {
+                y = minY;
                 vy = 0; // Stop upward movement if it hits the ceiling
             }
 
@@ -647,11 +662,11 @@
             player.style.left = `${x}px`;
             player.style.top = `${y}px`;
 
-            // --- Obstacle Movement ---
+            // --- Obstacle Movement (respecting borders) ---
             obstacleX += obstacleSpeed * obstacleDirection;
-            const obstacleMaxX = GAME_WIDTH - obstacle.offsetWidth;
-            if (obstacleX <= 0) {
-                obstacleX = 0;
+            const obstacleMaxX = GAME_WIDTH - obstacle.offsetWidth - BORDER_WIDTH;
+            if (obstacleX <= BORDER_WIDTH) {
+                obstacleX = BORDER_WIDTH;
                 obstacleDirection = 1; // Move right
             } else if (obstacleX >= obstacleMaxX) {
                 obstacleX = obstacleMaxX;
@@ -659,11 +674,11 @@
             }
             obstacle.style.left = `${obstacleX}px`;
 
-            // --- Rectangle Obstacle Movement ---
+            // --- Rectangle Obstacle Movement (respecting borders) ---
             rectObstacleX += rectObstacleSpeed * rectObstacleDirection;
-            const rectObstacleMaxX = GAME_WIDTH - obstacleRectElement.offsetWidth;
-            if (rectObstacleX <= 0) {
-                rectObstacleX = 0;
+            const rectObstacleMaxX = GAME_WIDTH - obstacleRectElement.offsetWidth - BORDER_WIDTH;
+            if (rectObstacleX <= BORDER_WIDTH) {
+                rectObstacleX = BORDER_WIDTH;
                 rectObstacleDirection = 1; // Move right
             } else if (rectObstacleX >= rectObstacleMaxX) {
                 rectObstacleX = rectObstacleMaxX;
@@ -703,13 +718,13 @@
             player.style.height = '50px'; // Ensure player is not squished on restart
 
             // Reset obstacle
-            obstacleX = 0; // Initial horizontal position, starts on the left
+            obstacleX = BORDER_WIDTH; // Initial horizontal position, starts on the left border
             obstacleSpeed = 2; // Reset to initial speed
             obstacleDirection = 1; // Start moving right
 
             // Reset rectangle obstacle
-            rectObstacleY = 0; // Positioned from the top to be un-jumpable
-            rectObstacleX = GAME_WIDTH - obstacleRectElement.offsetWidth; // Start on the right
+            rectObstacleY = BORDER_WIDTH; // Positioned from the top border
+            rectObstacleX = GAME_WIDTH - obstacleRectElement.offsetWidth - BORDER_WIDTH; // Start on the right border
             rectObstacleDirection = -1; // Start moving left
 
             // Reset and start score
@@ -764,8 +779,10 @@
         }
 
         // Hide button if API not supported, otherwise attach listener
-        const fullscreenAPISupported = container.requestFullscreen || container.mozRequestFullScreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
-
+        // Check if the Fullscreen API is enabled in the browser, which is more reliable across devices
+        // than checking for the request method on a specific element.
+        const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
+        
         if (!fullscreenAPISupported) {
             fullscreenBtn.style.display = 'none';
         } else {
