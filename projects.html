@@ -313,6 +313,38 @@
             animation: animated-gradient 15s ease infinite;
             color: white; /* Improves readability on the new dark background */
         }
+
+        /* --- iOS Standalone (Home Screen App) Mode --- */
+        /* When running as a home screen app, hide all non-game content */
+        body.standalone-mode #tswheader,
+        body.standalone-mode #tswsidecol,
+        body.standalone-mode #tswfooter,
+        body.standalone-mode #tswcontproper > h1,
+        body.standalone-mode #tswcontproper > p,
+        body.standalone-mode #tswcontproper > h2,
+        body.standalone-mode #tswcontproper > a.skin-button {
+            display: none;
+        }
+
+        /* Make the game container and its parents fill the entire screen */
+        body.standalone-mode,
+        body.standalone-mode #tswcontainer,
+        body.standalone-mode #tswcontent,
+        body.standalone-mode #tswcontproper {
+            height: 100vh; /* Use viewport height */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        /* Force the game container to fill its new full-screen parent */
+        body.standalone-mode #game-container {
+            height: 100%;
+            max-width: none;
+            margin: 0;
+            border-radius: 0;
+            aspect-ratio: auto; /* Override aspect-ratio to allow full height */
+        }
     </style>
 </head>
 
@@ -420,6 +452,11 @@
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isStandalone = window.navigator.standalone === true; // Check for iOS Home Screen app mode
+
+        // If running as a Home Screen app on iOS, add a class to the body to trigger fullscreen styles.
+        if (isStandalone) {
+            document.body.classList.add('standalone-mode');
+        }
         
         // Game world constants
         const GAME_WIDTH = 800;
