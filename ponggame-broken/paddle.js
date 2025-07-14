@@ -61,22 +61,28 @@ class Paddle {
     }
 
     bounce(ball) {
-        // Simplified collision and bounce logic
-        const paddleTop = this.posy;
-        const paddleBottom = this.posy + this.height;
-        const paddleLeft = this.posx;
-        const paddleRight = this.posx + this.width;
-
         const ballTop = ball.posy - BALL_RADIUS;
         const ballBottom = ball.posy + BALL_RADIUS;
         const ballLeft = ball.posx - BALL_RADIUS;
         const ballRight = ball.posx + BALL_RADIUS;
 
-        // AABB collision detection that checks if the ball is moving towards the paddle
-        const isMovingTowards = (this.side === SIDE.LEFT && ball.velx < 0) || (this.side === SIDE.RIGHT && ball.velx > 0);
+        const paddleTop = this.posy;
+        const paddleBottom = this.posy + this.height;
+        const paddleLeft = this.posx;
+        const paddleRight = this.posx + this.width;
 
-        if (isMovingTowards && ballRight > paddleLeft && ballLeft < paddleRight && ballBottom > paddleTop && ballTop < paddleBottom) {
-            // Reverse horizontal velocity and apply force
+        // Check for AABB (Axis-Aligned Bounding Box) collision.
+        if (ballRight < paddleLeft || ballLeft > paddleRight || ballBottom < paddleTop || ballTop > paddleBottom) {
+            return SIDE.NONE; // No collision.
+        }
+
+        // Collision detected. Now, handle the bounce physics.
+        // We only want to bounce if the ball is moving towards the paddle.
+        const isMovingTowardsPaddle = (this.side === SIDE.LEFT && ball.velx < 0) || (this.side === SIDE.RIGHT && ball.velx > 0);
+
+        // The AABB check above confirmed a collision. If the ball is moving towards the paddle, bounce it.
+        if (isMovingTowardsPaddle) {
+            // Reverse horizontal velocity and apply force.
             ball.velx *= -1;
             ball.velx *= PADDLE_FORCE;
 
@@ -87,7 +93,6 @@ class Paddle {
 
             return SIDE.NONE;
         }
-
 
         return SIDE.NONE;
     }
