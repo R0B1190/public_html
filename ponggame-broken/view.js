@@ -55,7 +55,7 @@ function updateScore(model) {
 function draw_game(model) {
     // FIX: Draw the semi-transparent overlay FIRST. This creates the motion-blur trail
     // for all elements (particles, ball, paddles) that are drawn after it.
-    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; // Lower alpha for a longer, more noticeable trail
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Dashed center line with a subtle glow
@@ -64,7 +64,7 @@ function draw_game(model) {
     ctx.lineWidth = 4;
     ctx.setLineDash([15, 15]);
     ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
-    ctx.shadowBlur = 5;
+    ctx.shadowBlur = 3; // Subtle glow for the center line
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, 0);
     ctx.lineTo(canvas.width / 2, canvas.height);
@@ -83,7 +83,7 @@ function draw_ball(ctx, ball) {
     ctx.save();
     ctx.fillStyle = ball_color;
     ctx.shadowColor = ball_color;
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 8; // Subtle glow for the ball
     ctx.beginPath();
     ctx.arc(ball.posx, ball.posy, BALL_RADIUS, 0, 2 * Math.PI);
     ctx.fill();
@@ -100,7 +100,7 @@ function draw_paddle(ctx, paddle) {
     ctx.save();
     ctx.fillStyle = paddle.color;
     ctx.shadowColor = paddle.color;
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 6; // Subtle glow for the paddles
     ctx.beginPath();
     ctx.moveTo(x + r, y);
     ctx.arcTo(x + w, y, x + w, y + h, r);
