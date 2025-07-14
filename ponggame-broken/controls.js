@@ -45,6 +45,9 @@ function keyUp(event) {
 }
 
 function resetGame() {
+    model.scoreL = 0;
+    model.scoreR = 0;
+    updateScore(model);
     model.resetGame();
     onTick();
 }
