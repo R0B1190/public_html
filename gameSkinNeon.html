@@ -91,7 +91,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             border-radius: inherit; /* Match the viewport's corners */
-            box-shadow: inset 0 0 0 2px #e94560; /* Simulate the border inside */
+            box-shadow: inset 0 0 0 4px #e94560; /* Simulate the border inside */
             z-index: 2; /* Above game elements, below UI */
             pointer-events: none; /* Don't block mouse/touch events */
         }
@@ -104,7 +104,7 @@
             position: absolute; /* Position relative to the container */
             box-shadow: 0 0 15px #00f5d4, 0 0 25px #00f5d4; /* Glow effect */
             transition: height 0.1s ease-in-out; /* Smooth squish on height only */
-            will-change: left, top; /* Performance optimization hint for movement */
+            will-change: left, top, box-shadow; /* Performance optimization hint */
             /* Start in the middle */
             top: calc(50% - 25px);
             left: calc(50% - 25px);
@@ -122,17 +122,17 @@
             left: 300px;
             display: none; /* Hidden until game starts */
             filter: drop-shadow(0 3px 5px rgba(233, 69, 96, 0.7));
-            will-change: left; /* Performance optimization hint for movement */
+            will-change: left, filter; /* Performance optimization hint */
         }
 
         #obstacle-rectangle {
             width: 100px;
-            height: 416px; /* Adjusted for 16:9 aspect ratio */
+            height: 416px; /* Adjusted for 16:9 aspect ratio to allow squished player to pass under */
             background-color: #e94560; /* Neon red/pink */
             position: absolute;
             display: none; /* Hidden until game starts */
             box-shadow: 0 0 10px #e94560;
-            will-change: left; /* Performance optimization hint for movement */
+            will-change: left, box-shadow; /* Performance optimization hint */
         }
 
         #start-menu {
@@ -389,7 +389,7 @@
                 <a href="projects.html" class="skin-button">Default</a>
                 <a href="gameSkinClassic.html" class="skin-button">Classic</a>
                 <a href="gameSkinNeon.html" class="skin-button">Neon</a>
-                <a href="gameSkin.html" class="skin-button">[Placeholder Skin]</a>
+                <a href="gameSkin.html" class="skin-button">Glass</a>
 
                 <!-- end of content column: put your content above this line -->
             </div>
@@ -454,7 +454,7 @@
         // Game world constants
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 450; // 16:9 aspect ratio
-        const BORDER_WIDTH = 2;  // Corresponds to the CSS border width
+        const BORDER_WIDTH = 4;  // Corresponds to the CSS border width
         
         // Player state
         let x;

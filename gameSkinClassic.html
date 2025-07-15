@@ -13,8 +13,9 @@
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
     <style>
-        /* Style for the active page link on gameSkinClassic.html */
-        #tswcssbuttons a[href="gameSkinClassic.html"] {
+        /* Style for the active "Game" menu link, preventing hover effect */
+        #tswcssbuttons a[href="projects.html"],
+        #tswcssbuttons a[href="projects.html"]:hover {
             background-color: #a25b09; /* A darker shade of the page background */
             color: white;
         }
@@ -76,7 +77,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             border-radius: inherit; /* Match the viewport's corners */
-            box-shadow: inset 0 0 0 2px black; /* Simulate the border inside */
+            box-shadow: inset 0 0 0 4px black; /* Simulate the border inside */
             z-index: 2; /* Above game elements, below UI */
             pointer-events: none; /* Don't block mouse/touch events */
         }
@@ -107,7 +108,7 @@
 
         #obstacle-rectangle {
             width: 100px;
-            height: 416px; /* Adjusted for 16:9 aspect ratio */
+            height: 416px; /* Adjusted for 16:9 aspect ratio to allow squished player to pass under */
             background-color: red;
             position: absolute;
             display: none; /* Hidden until game starts */
@@ -152,12 +153,10 @@
             width: 40px;
             height: 40px;
             font-size: 1.5em;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7);
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
-            border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid black;
+            border-radius: 0;
             cursor: pointer;
             z-index: 15;
             display: flex;
@@ -165,7 +164,6 @@
             align-items: center;
             padding: 0;
             line-height: 1;
-            transition: all 0.1s ease;
             user-select: none;
         }
 
@@ -199,22 +197,19 @@
             height: 75px;
             font-size: 2.5em;
             font-weight: bold;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
-            border-radius: 50%; /* Circular buttons */
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid black;
+            border-radius: 0; /* Square buttons for classic feel */
             cursor: pointer;
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.1s;
         }
 
         .control-btn:active {
-            transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            background-color: #ccc;
         }
         .skin-button {
             display: inline-block;
@@ -228,6 +223,16 @@
             background-color: #f0f0f0;
             border: none;
             border-radius: 0;
+        }
+
+        .skin-button:hover {
+            background-color: #cccccc; /* Gray background on hover */
+        }
+
+        /* Style for the active classic skin button */
+        .skin-button[href="gameSkinClassic.html"] {
+            background-color: #a25b09; /* A darker shade of the page background */
+            color: white;
         }
 
         body.standalone-mode #game-container #game-viewport,
@@ -320,7 +325,7 @@
                 <a href="projects.html" class="skin-button">Default</a>
                 <a href="gameSkinClassic.html" class="skin-button">Classic</a>
                 <a href="gameSkinNeon.html" class="skin-button">Neon</a>
-                <a href="gameSkin.html" class="skin-button">[Placeholder Skin]</a>
+                <a href="gameSkin.html" class="skin-button">Glass</a>
 
                 <!-- end of content column: put your content above this line -->
             </div>
@@ -385,7 +390,7 @@
         // Game world constants
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 450; // 16:9 aspect ratio
-        const BORDER_WIDTH = 2;  // Corresponds to the CSS border width
+        const BORDER_WIDTH = 4;  // Corresponds to the CSS border width
         
         // Player state
         let x;

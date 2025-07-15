@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Game</title>
+    <title>Glass</title>
     <meta name="generator" content="thesitewizard.com's Layout Wizard 4.0.0">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Meta tags for a better mobile experience, especially on iOS for "Add to Home Screen" -->
@@ -13,6 +13,13 @@
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
     <style>
+        body {
+            /* Animated gradient background */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: animateGradient 15s ease infinite;
+        }
+
         /* Style for the active page link on gameSkin.html */
         #tswcssbuttons a[href="gameSkin.html"] {
             background-color: #a25b09; /* A darker shade of the page background */
@@ -29,17 +36,29 @@
             display: block;
             padding: 12px;
             margin-bottom: 8px;
-            background-color: #f0f0f0;
-            color: #333;
             text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.2s ease-in-out;
             text-align: center;
             font-weight: bold;
+            /* Glass Style */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 2px 2px 5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: all 0.15s ease-out;
         }
 
         #tswcssbuttons li a:hover {
-            background-color: #ddd;
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 80%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 3px 3px 7px rgba(0, 0, 0, 0.4);
+        }
+
+        #tswcssbuttons li a:active {
+            transform: translate(1px, 1px);
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         /* --- Game Styles --- */
@@ -47,25 +66,66 @@
             width: 100%;
             max-width: 800px;
             aspect-ratio: 16 / 9;
-            background-color: #000; /* Black for letterboxing */
             position: relative; /* For positioning children like the start menu and fullscreen button */
             margin: 20px auto; /* Center the container */
             border-radius: 15px; /* Rounded corners */
             overflow: hidden; /* Keeps player glow inside */
             transition: all 0.4s ease-in-out;
+    /* New Glass Border Style */
+    background: rgba(0, 0, 0, 0.15); /* A subtle dark tint for the glass */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), /* Inner highlight */
+                0 5px 15px rgba(0, 0, 0, 0.5); /* Outer shadow */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); /* Safari support */
+        }
+
+        @keyframes animateGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* When fullscreen, the container should fill the screen */
         #game-container:fullscreen {
             width: 100%;
             height: 100%;
-            border-radius: 0; /* Remove rounded corners in fullscreen */
+            border-radius: 0;
+            background: #000; /* Black background for letterboxing */
+            border: none; /* Remove the standard border */
+        }
+
+        /* Add the animated gradient back INSIDE the container when in standalone mode, so the glass effect has a background. */
+        body.standalone-mode #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* Place it behind all of the container's content */
+            /* The animated gradient from the body */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: animateGradient 15s ease infinite;
+        }
+        
+        /* In fullscreen, the viewport gets the gradient background, while the container is black for letterboxing */
+        #game-container:fullscreen #game-viewport {
+            /* The animated gradient from the body */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: animateGradient 15s ease infinite;
         }
 
         #game-viewport {
             width: 800px;
             height: 450px; /* 16:9 aspect ratio with 800px width */
-            background-color: #444; /* The actual game background */ 
+            /* The background is now on the body, so this is transparent */
+            background-color: transparent;
             position: absolute; /* Take out of flow to allow parent to scale correctly */
             top: 50%;
             left: 50%;
@@ -75,25 +135,29 @@
             border-radius: 15px;
         }
 
-        #game-viewport::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: inherit; /* Match the viewport's corners */
-            box-shadow: inset 0 0 0 4px #2a2a2a, inset 2px 2px 5px rgba(0, 0, 0, 0.3);
-            z-index: 2; /* Above game elements, below UI */
-            pointer-events: none; /* Don't block mouse/touch events */
-        }
-
         #player-circle {
             width: 50px;
             height: 50px;
-            background: radial-gradient(circle at 15px 15px, #66b3ff, #0059b3); /* Shiny sphere effect */
+            /* Layered gradients for a sharp, shiny glint and a subtle body highlight */
+            background:
+                /* 1. Sharp, top-left glint */
+                radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%),
+                /* 2. Base glass transparency */
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* A crisp edge for the glass */
             border-radius: 50%;
             position: absolute; /* Position relative to the container */
-            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.4); /* Drop shadow */
+            /* Cleaned up shadows for a more defined 3D look */
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.7), /* Clean inner top highlight */
+                inset 0 -4px 5px rgba(0, 0, 0, 0.25),   /* Deeper inner bottom shadow */
+                5px 5px 8px rgba(0, 0, 0, 0.4);      /* Original drop shadow */
+
+            /* This makes the background seen through the ball blurry, like frosted glass. */
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px); /* Safari support */
             transition: height 0.1s ease-in-out; /* Smooth squish on height only */
-            will-change: left, top; /* Performance optimization hint for movement */
+            will-change: left, top, backdrop-filter; /* Performance optimization hint for movement */
             /* Start in the middle */
             top: calc(50% - 25px);
             left: calc(50% - 25px);
@@ -101,29 +165,51 @@
         }
 
         #obstacle-triangle {
-            width: 0;
-            height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 50px solid #c00; /* Solid red */
+            width: 50px;
+            height: 50px;
             position: absolute;
             bottom: 0;
             left: 300px;
             display: none; /* Hidden until game starts */
-            filter: drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.5)); /* More realistic shadow */
-            will-change: left; /* Performance optimization hint for movement */
+            
+            /* Create triangle shape */
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            
+            /* The outline and shadow are applied to the clipped container. */
+            filter: drop-shadow(0 0 2px white) drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.5));
+            will-change: left, filter; /* Performance optimization hint */
+            
+            /* This ensures the ::before pseudo-element is clipped correctly. */
+            overflow: hidden;
+        }
+
+        #obstacle-triangle::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* The glass styling is now on the pseudo-element. */
+            background:
+                radial-gradient(ellipse at 50% 20%, white 0%, rgba(255, 255, 255, 0) 60%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 80%);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
 
         #obstacle-rectangle {
             width: 100px;
-            height: 416px; /* Adjusted for 16:9 aspect ratio */
-            background: linear-gradient(to right, #d00, #a00); /* Gradient for shape */
-            border-left: 2px solid #f33; /* Highlight */
-            border-right: 2px solid #800; /* Shadow */
-            box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.4);
+            height: 415px; /* Adjusted to account for player border, allowing squished player to pass under */
             position: absolute;
             display: none; /* Hidden until game starts */
             will-change: left; /* Performance optimization hint for movement */
+
+            /* Glass Style (adapted from other elements) */
+            background: radial-gradient(ellipse at 30% 10%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 -5px 5px rgba(0, 0, 0, 0.2), 5px 0px 10px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
 
         #start-menu {
@@ -144,23 +230,26 @@
             font-size: 2em;
             font-weight: bold;
             cursor: pointer;
-            color: #333;
-            background-color: #f0f0f0;
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
             border-radius: 10px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            transition: all 0.1s ease;
+            /* Glass Style */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 2px 2px 5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: all 0.15s ease-out;
         }
 
         #start-button:hover {
-            background-color: #fff;
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 80%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 3px 3px 7px rgba(0, 0, 0, 0.4);
         }
 
         #start-button:active {
             transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         #score {
@@ -169,10 +258,19 @@
             left: 10px;
             font-size: 1.5em;
             font-weight: bold;
-            color: #f0f0f0; /* Light color for visibility on dark background */
             z-index: 5;
             display: none; /* Hidden until game starts */
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Dark shadow for contrast */
+            /* Glass text effect for readability */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Glass effect for page text */
+        #tswcontproper h1,
+        #tswcontproper h2,
+        #tswcontproper p {
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
         #fullscreen-btn {
@@ -182,12 +280,7 @@
             width: 40px;
             height: 40px;
             font-size: 1.5em;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7);
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
             border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             z-index: 15;
             display: flex;
@@ -195,8 +288,26 @@
             align-items: center;
             padding: 0;
             line-height: 1;
-            transition: all 0.1s ease;
             user-select: none;
+            /* Glass Style */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 2px 2px 5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: all 0.15s ease-out;
+        }
+
+        #fullscreen-btn:hover {
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 80%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 3px 3px 7px rgba(0, 0, 0, 0.4);
+        }
+
+        #fullscreen-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
 
@@ -229,22 +340,25 @@
             height: 75px;
             font-size: 2.5em;
             font-weight: bold;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
             border-radius: 50%; /* Circular buttons */
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            /* Glass Style */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 2px 2px 5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: all 0.15s ease-out;
         }
 
         .control-btn:active {
             transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         .skin-button {
@@ -257,21 +371,24 @@
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            color: #333;
-            background-color: #f0f0f0;
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
             border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-            transition: all 0.1s ease;
+            /* Glass Style */
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 80%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 2px 2px 5px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: all 0.15s ease-out;
         }
         .skin-button:hover {
-            background-color: #fff;
+            background: radial-gradient(ellipse at 30% 25%, white 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 80%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -4px 5px rgba(0, 0, 0, 0.2), 3px 3px 7px rgba(0, 0, 0, 0.4);
         }
         .skin-button:active {
             transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         /* --- iOS Standalone (Home Screen App) Mode --- */
@@ -314,10 +431,52 @@
             border-radius: 0;
             aspect-ratio: auto; /* Override aspect-ratio to allow full height */
         }
+
+        /* --- Shatter Effect --- */
+        #shatter-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+            overflow: hidden;
+        }
+
+        .shard {
+            position: absolute;
+            /* custom properties will be set by JS */
+            animation: shatter 1.5s forwards cubic-bezier(0.1, 0.8, 0.7, 1);
+            /* This is the key: it makes the clip-path (set by JS) affect the pseudo-element */
+            overflow: hidden;
+        }
+
+        .shard::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* Match the player's glass style for consistency */
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 90%);
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+        }
+
+        @keyframes shatter {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                /* These values are set dynamically by JS for each shard */
+                transform: translate(var(--translateX), var(--translateY)) rotate(var(--rotateZ));
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
-<body style="background: rgb(197, 110, 11);">
+<body>
 
     <div id="tswcontainer">
         <div id="tswheader">
@@ -346,6 +505,7 @@
                     </div>
                     <div id="game-viewport">
                         <div id="score">Score: 0</div>
+                        <div id="shatter-container"></div>
                         <div id="player-circle"></div>
                         <div id="obstacle-triangle"></div>
                         <div id="obstacle-rectangle"></div>
@@ -366,7 +526,7 @@
                 <a href="projects.html" class="skin-button">Default</a>
                 <a href="gameSkinClassic.html" class="skin-button">Classic</a>
                 <a href="gameSkinNeon.html" class="skin-button">Neon</a>
-                <a href="gameSkin.html" class="skin-button">[Placeholder Skin]</a>
+                <a href="gameSkin.html" class="skin-button">Glass</a>
 
                 <!-- end of content column: put your content above this line -->
             </div>
@@ -411,6 +571,7 @@
         const startMenu = document.getElementById('start-menu');
         const startButton = document.getElementById('start-button');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const shatterContainer = document.getElementById('shatter-container');
         const obstacle = document.getElementById('obstacle-triangle');
         const obstacleRectElement = document.getElementById('obstacle-rectangle');
         const scoreDisplay = document.getElementById('score');
@@ -431,7 +592,7 @@
         // Game world constants
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 450; // 16:9 aspect ratio
-        const BORDER_WIDTH = 4;  // Corresponds to the CSS border width
+        const BORDER_WIDTH = 1;
         
         // Player state
         let x;
@@ -497,12 +658,64 @@
             }
         });
 
+        function triggerShatterEffect(playerX, playerY) {
+            // Clear any old shards
+            shatterContainer.innerHTML = '';
+
+            const SHARD_COUNT = 25; // More shards for a better effect
+            const playerCenter_X = playerX + player.offsetWidth / 2;
+            const playerCenter_Y = playerY + player.offsetHeight / 2;
+
+            for (let i = 0; i < SHARD_COUNT; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'shard';
+
+                // Set shard initial position to the player's center
+                shard.style.left = `${playerCenter_X}px`;
+                shard.style.top = `${playerCenter_Y}px`;
+                
+                // Randomize shard size
+                const size = 8 + Math.random() * 20; // More varied sizes
+                shard.style.width = `${size}px`;
+                shard.style.height = `${size}px`;
+
+                // Use clip-path to create a random triangular shard shape
+                const p1 = { x: 50 + (Math.random() - 0.5) * 50, y: (Math.random()) * 50 };
+                const p2 = { x: (Math.random()) * 50, y: 50 + (Math.random()) * 50 };
+                const p3 = { x: 50 + (Math.random()) * 50, y: 50 + (Math.random()) * 50 };
+                shard.style.clipPath = `polygon(${p1.x}% ${p1.y}%, ${p2.x}% ${p2.y}%, ${p3.x}% ${p3.y}%)`;
+
+                // Calculate a random trajectory
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 90 + Math.random() * 100; // Fly a bit further
+                // End position with a downward arc to simulate gravity
+                const endX = Math.cos(angle) * distance;
+                const endY = Math.sin(angle) * distance + (distance * 0.75); // More gravity effect
+                const endRotation = (Math.random() - 0.5) * 1080; // Spin more
+
+                // Set CSS custom properties for the animation
+                shard.style.setProperty('--translateX', `${endX}px`);
+                shard.style.setProperty('--translateY', `${endY}px`);
+                shard.style.setProperty('--rotateZ', `${endRotation}deg`);
+
+                shatterContainer.appendChild(shard);
+            }
+        }
+
         function endGame() {
             clearInterval(scoreInterval);
             cancelAnimationFrame(animationFrameId);
-            startMenu.style.display = 'flex';
-            if (isTouchDevice) mobileControls.style.display = 'none';
-            startButton.textContent = 'Play Again';
+            if (isTouchDevice) mobileControls.style.display = 'none'; // Hide controls immediately
+
+            // Hide the player and trigger the shatter effect
+            player.style.display = 'none';
+            triggerShatterEffect(x, y);
+
+            // Show the "Play Again" menu after the animation finishes
+            setTimeout(() => {
+                startMenu.style.display = 'flex';
+                startButton.textContent = 'Play Again';
+            }, 1500); // Should match the animation duration
         }
 
         function checkPreciseCollision(currentObstacleX, squished) {
@@ -715,6 +928,7 @@
 
         // Start the game when the button is clicked
         startButton.addEventListener('click', () => {
+            shatterContainer.innerHTML = ''; // Clear any leftover shards from a previous game
             startMenu.style.display = 'none';
             player.style.display = 'block';
             obstacle.style.display = 'block';
