@@ -27,8 +27,11 @@ class Ball {
                 return SIDE.NONE; // A paddle was hit, so no point is scored.
             }
         }
-        if (this.posx + BALL_RADIUS > BOARD_WIDTH) return SIDE.RIGHT; // Right paddle missed, point for left player.
-        if (this.posx - BALL_RADIUS < 0) return SIDE.LEFT; // Left paddle missed, point for right player.
+        // A point is scored only when the ball is completely off the screen.
+        // For the right side, the ball's left edge must be past the board width.
+        if (this.posx - BALL_RADIUS > BOARD_WIDTH) return SIDE.RIGHT;
+        // For the left side, the ball's right edge must be past the left boundary (0).
+        if (this.posx + BALL_RADIUS < 0) return SIDE.LEFT;
 
         return SIDE.NONE;
     }
