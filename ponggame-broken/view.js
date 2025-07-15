@@ -127,20 +127,13 @@ function draw_victory_screen(model) {
     ctx.lineWidth = 2;
     ctx.shadowColor = winnerColor;
     ctx.shadowBlur = 15;
-    ctx.font = "60px 'Courier New', Courier, monospace";
+    ctx.font = "45px 'Courier New', Courier, monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     const victoryMessage = `${winner} Wins!`;
-    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
-    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
-
-    // "Press End to Restart" Text
-    ctx.fillStyle = "white";
-    ctx.shadowColor = "white";
-    ctx.shadowBlur = 10;
-    ctx.font = "24px 'Courier New', Courier, monospace";
-    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 40);
+    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2);
+    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2);
 
     ctx.restore();
 }

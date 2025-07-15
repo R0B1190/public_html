@@ -23,9 +23,6 @@ function keyDown(event) {
         case "ArrowDown":
             model.paddleR.vely = PADDLE_VELOCITY;
             break;
-        case "End":
-            model.resetGame();
-            break;
     }
 }
 

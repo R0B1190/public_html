@@ -31,6 +31,7 @@ class Model {
         this.state = STATE.STARTUP;
         this.scoreL = 0;
         this.scoreR = 0;
+        updateScore(this); // Immediately update the scoreboard display
         clearTimeout(this.intervalID);
         this.resetBall();
         this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, "#00FFFF"); // Cyan
