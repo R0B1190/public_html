@@ -1,4 +1,8 @@
+const player1_keys = { up: false, down: false };
+const player2_keys = { up: false, down: false };
+
 window.addEventListener("keydown", keyDown);
+window.addEventListener("keyup", keyUp);
 
 // New event listeners for the updated controls
 document.querySelectorAll('.difficulty-slider').forEach(slider => {
@@ -18,25 +22,22 @@ if (winning_score_selector) winning_score_selector.addEventListener("change", se
 
 const reset_button = document.getElementById("reset-btn");
 if (reset_button) reset_button.addEventListener("click", resetGame);
+
 function keyDown(event) {
     const key = event.code;
-    // console.log(`KEYDOWN: ${key}`);
-
     switch (key) {
         case "KeyW":
-            model.paddleL.vely = -PADDLE_VELOCITY;
+            player1_keys.up = true;
             break;
         case "KeyS":
-            model.paddleL.vely = PADDLE_VELOCITY;
+            player1_keys.down = true;
             break;
-
         case "ArrowUp":
-            model.paddleR.vely = -PADDLE_VELOCITY;
+            player2_keys.up = true;
             break;
         case "ArrowDown":
-            model.paddleR.vely = PADDLE_VELOCITY;
+            player2_keys.down = true;
             break;
-
         case "End":
             if (model.state === STATE.GAMEOVER) {
                 resetGame();
@@ -45,24 +46,43 @@ function keyDown(event) {
     }
 }
 
-window.addEventListener("keyup", keyUp);
 function keyUp(event) {
     const key = event.code;
-    // console.log(`KEYUP: ${key}`);
-
     switch (key) {
         case "KeyW":
+            player1_keys.up = false;
+            break;
         case "KeyS":
-            model.paddleL.vely = 0;
+            player1_keys.down = false;
             break;
         case "ArrowUp":
+            player2_keys.up = false;
+            break;
         case "ArrowDown":
-            model.paddleR.vely = 0;
+            player2_keys.down = false;
             break;
     }
 }
 
+function updatePlayerPaddlesVelocity() {
+    // Player 1 (Left Paddle)
+    if (!model.cpu_left) {
+        let move_dir = (player1_keys.down ? 1 : 0) - (player1_keys.up ? 1 : 0);
+        model.paddleL.vely = move_dir * PADDLE_VELOCITY;
+    }
+
+    // Player 2 (Right Paddle)
+    if (!model.cpu_right) {
+        let move_dir = (player2_keys.down ? 1 : 0) - (player2_keys.up ? 1 : 0);
+        model.paddleR.vely = move_dir * PADDLE_VELOCITY;
+    }
+}
+
 function resetGame() {
+    player1_keys.up = false;
+    player1_keys.down = false;
+    player2_keys.up = false;
+    player2_keys.down = false;
     model.resetGame();
     onTick();
 }
@@ -74,12 +94,6 @@ function set_player_type(event) {
         model.cpu_left = is_cpu;
     } else if (side === 'right') {
         model.cpu_right = is_cpu;
-    }
-
-    // Show/hide the difficulty slider for this player
-    const sliderContainer = document.getElementById(`difficulty-${side}-container`);
-    if (sliderContainer) {
-        sliderContainer.style.display = is_cpu ? 'block' : 'none';
     }
 }
 

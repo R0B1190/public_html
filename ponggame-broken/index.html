@@ -11,6 +11,10 @@
         .hidden {
             display: none;
         }
+
+        .cpu-options {
+            margin-top: 15px;
+        }
     </style>
     <script src="model.js" defer></script>
     <script src="ball.js" defer></script>
@@ -35,7 +39,8 @@
             <div id="cpu-options-left" class="cpu-options hidden">
                 <div class="control-group">
                     <label for="cpu-difficulty-left">Difficulty</label>
-                    <input type="range" id="cpu-difficulty-left" min="0" max="2" value="0" class="styled-slider">
+                    <input type="range" id="cpu-difficulty-left" data-side="left" min="0" max="2" value="0"
+                        class="styled-slider difficulty-slider">
                     <div class="slider-labels">
                         <span>Easy</span><span>Medium</span><span>Hard</span>
                     </div>
@@ -81,7 +86,8 @@
             <div id="cpu-options-right" class="cpu-options">
                 <div class="control-group">
                     <label for="cpu-difficulty-right">Difficulty</label>
-                    <input type="range" id="cpu-difficulty-right" min="0" max="2" value="0" class="styled-slider">
+                    <input type="range" id="cpu-difficulty-right" data-side="right" min="0" max="2" value="0"
+                        class="styled-slider difficulty-slider">
                     <div class="slider-labels">
                         <span>Easy</span><span>Medium</span><span>Hard</span>
                     </div>

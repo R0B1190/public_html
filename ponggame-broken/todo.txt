@@ -14,4 +14,4 @@ classic - dont rounding
 
 crt effect??
 
-movement stacking
+restart and end make the score reset

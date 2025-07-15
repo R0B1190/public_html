@@ -50,6 +50,7 @@ function onTick() {
 }
 
 function play() {
+    updatePlayerPaddlesVelocity();
     model.paddleL.move(model.cpu_left, model.ball, model.cpu_difficulty_left);
     model.paddleR.move(model.cpu_right, model.ball, model.cpu_difficulty_right);
     model.ball.move();
