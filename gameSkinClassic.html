@@ -152,12 +152,10 @@
             width: 40px;
             height: 40px;
             font-size: 1.5em;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7);
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
-            border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid black;
+            border-radius: 0;
             cursor: pointer;
             z-index: 15;
             display: flex;
@@ -165,7 +163,6 @@
             align-items: center;
             padding: 0;
             line-height: 1;
-            transition: all 0.1s ease;
             user-select: none;
         }
 
@@ -199,22 +196,19 @@
             height: 75px;
             font-size: 2.5em;
             font-weight: bold;
-            color: #333;
-            background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
-            border: 2px solid;
-            border-color: #fff #aaa #aaa #fff;
-            border-radius: 50%; /* Circular buttons */
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid black;
+            border-radius: 0; /* Square buttons for classic feel */
             cursor: pointer;
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.1s;
         }
 
         .control-btn:active {
-            transform: translate(1px, 1px);
-            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-            border-color: #aaa #fff #fff #aaa;
+            background-color: #ccc;
         }
         .skin-button {
             display: inline-block;
