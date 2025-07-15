@@ -99,6 +99,13 @@ function loadThemeAssets(themeName, onReadyCallback) {
     document.body.appendChild(newScript);
 }
 function set_winning_score(event) {
-    model.winningScore = parseInt(event.target.value);
+    let score = parseInt(event.target.value);
+
+    // A score of 0, a negative number, or an invalid number means "Endless Mode".
+    // We will use a score of 0 to represent endless mode.
+    if (isNaN(score) || score <= 0) {
+        score = 0;
+    }
+    model.winningScore = score;
     resetGame();
 }
