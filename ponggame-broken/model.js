@@ -1,3 +1,4 @@
+const SIDE = { NONE: 0, LEFT: 1, RIGHT: 2 };
 const STATE = { STARTUP: 0, PLAYING: 1, GAMEOVER: 2 };
 const CPU_DIFFICULTY = { EASY: 0, MEDIUM: 1, HARD: 2 };
 const THEMES = {
@@ -33,6 +34,7 @@ class Model {
     scoreR = 0;
     cpu_left = false; // Default to Player vs CPU
     cpu_right = true;
+    winningScore = 10;
     cpu_difficulty = CPU_DIFFICULTY.EASY;
     theme = THEMES.CLASSIC; // Default theme
     state = STATE.STARTUP;
@@ -53,6 +55,8 @@ class Model {
 
     resetGame() {
         this.state = STATE.STARTUP;
+        this.scoreL = 0;
+        this.scoreR = 0;
         clearTimeout(this.intervalID);
         this.resetBall();
         this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, this.theme.paddleLColor);

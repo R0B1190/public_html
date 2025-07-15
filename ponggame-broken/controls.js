@@ -5,6 +5,8 @@ const cpu_paddle_selector = document.getElementById("cpu_paddle_selector");
 if (cpu_paddle_selector) cpu_paddle_selector.addEventListener("change", set_cpu_paddle);
 const theme_selector = document.getElementById("theme_selector");
 if (theme_selector) theme_selector.addEventListener("change", set_theme);
+const winning_score_selector = document.getElementById("winning_score_selector");
+if (winning_score_selector) winning_score_selector.addEventListener("change", set_winning_score);
 
 function keyDown(event) {
     const key = event.code;
@@ -98,4 +100,8 @@ function loadThemeAssets(themeName, onReadyCallback) {
         if (onReadyCallback) onReadyCallback();
     };
     document.body.appendChild(newScript);
+}
+function set_winning_score(event) {
+    model.winningScore = parseInt(event.target.value);
+    resetGame();
 }

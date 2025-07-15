@@ -45,3 +45,37 @@ function drawStarfield(ctx) { }
 
 // Empty init function
 function initStarfield() { }
+
+
+function draw_victory_screen(model) {
+    const winner = model.scoreL >= model.winningScore ? "Left Player" : "Right Player";
+    const winnerColor = model.scoreL >= model.winningScore ? model.paddleL.color : model.paddleR.color;
+
+    ctx.save();
+    // Semi-transparent background overlay
+    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Victory Text
+    ctx.fillStyle = winnerColor;
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.shadowColor = winnerColor;
+    ctx.shadowBlur = 15;
+    ctx.font = "60px 'Courier New', Courier, monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const victoryMessage = `${winner} Wins!`;
+    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
+    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
+
+    // "Press End to Restart" Text
+    ctx.fillStyle = "white";
+    ctx.shadowColor = "white";
+    ctx.shadowBlur = 10;
+    ctx.font = "24px 'Courier New', Courier, monospace";
+    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 40);
+
+    ctx.restore();
+}

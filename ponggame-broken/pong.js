@@ -8,21 +8,23 @@ window.addEventListener('load', () => {
 });
 
 function onTick() {
-    switch (model.state) {
-        case STATE.STARTUP:
-            model.state = STATE.PLAYING;
-            break;
-        case STATE.PLAYING:
-            model.state = play();
-            if (model.state === STATE.PLAYING) draw_game(model); // Only draw if we are still playing
-            break;
-        case STATE.GAMEOVER:
-            state = STATE.GAMEOVER;
-            break;
-    }
     if (model.state === STATE.PLAYING) {
-        model.intervalID = setTimeout(onTick, 10);
+        model.state = play(); // This might change state to GAMEOVER
+    } else if (model.state === STATE.STARTUP) {
+        model.state = STATE.PLAYING;
     }
+
+    // Always draw the game board
+    draw_game(model);
+
+    // If the game is over, draw the victory screen and stop the loop
+    if (model.state === STATE.GAMEOVER) {
+        draw_victory_screen(model);
+        clearTimeout(model.intervalID); // Stop the game loop.
+        return; // Don't set another timeout
+    }
+
+    model.intervalID = setTimeout(onTick, 10);
 }
 
 function play() {
@@ -36,7 +38,7 @@ function play() {
         if (scoreSide == SIDE.RIGHT) model.scoreL++;
         updateScore(model);
         model.resetBall();
-        if (model.scoreL >= 10 || model.scoreR >= 10) return STATE.GAMEOVER;
+        if (model.scoreL >= model.winningScore || model.scoreR >= model.winningScore) return STATE.GAMEOVER;
     }
     // Add serving the ball?
     // If a player wins, stop the game...
