@@ -1,5 +1,12 @@
 let model = new Model();
 
+// Wait for the entire page to load, then load the initial theme.
+// The game loop (onTick) will be passed as a callback to start the game
+// only AFTER the theme's view.js file has been loaded.
+window.addEventListener('load', () => {
+    loadThemeAssets(model.theme.name, onTick);
+});
+
 function onTick() {
     switch (model.state) {
         case STATE.STARTUP:
@@ -7,13 +14,15 @@ function onTick() {
             break;
         case STATE.PLAYING:
             model.state = play();
+            if (model.state === STATE.PLAYING) draw_game(model); // Only draw if we are still playing
             break;
         case STATE.GAMEOVER:
             state = STATE.GAMEOVER;
             break;
     }
-    draw_game(model);
-    model.intervalID = setTimeout(onTick, 10);
+    if (model.state === STATE.PLAYING) {
+        model.intervalID = setTimeout(onTick, 10);
+    }
 }
 
 function play() {

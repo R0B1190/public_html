@@ -1,5 +1,21 @@
 const STATE = { STARTUP: 0, PLAYING: 1, GAMEOVER: 2 };
 const CPU_DIFFICULTY = { EASY: 0, MEDIUM: 1, HARD: 2 };
+const THEMES = {
+    NEON: {
+        name: 'NEON',
+        cssPath: 'themes/neon/style.css',
+        jsPath: 'themes/neon/view.js',
+        paddleLColor: '#00FFFF', // Cyan
+        paddleRColor: '#FF00FF', // Magenta
+    },
+    CLASSIC: {
+        name: 'CLASSIC',
+        cssPath: 'themes/classic/style.css',
+        jsPath: 'themes/classic/view.js',
+        paddleLColor: '#FFFFFF',
+        paddleRColor: '#FFFFFF',
+    }
+};
 
 const BOARD_WIDTH = 500;
 const BOARD_HEIGHT = 500;
@@ -18,6 +34,7 @@ class Model {
     cpu_left = false; // Default to Player vs CPU
     cpu_right = true;
     cpu_difficulty = CPU_DIFFICULTY.EASY;
+    theme = THEMES.CLASSIC; // Default theme
     state = STATE.STARTUP;
     intervalID = -1;
 
@@ -25,12 +42,21 @@ class Model {
         this.resetGame();
     }
 
+    setTheme(themeName) {
+        if (THEMES[themeName]) {
+            this.theme = THEMES[themeName];
+            // Update existing paddle colors for live theme switching
+            if (this.paddleL) this.paddleL.color = this.theme.paddleLColor;
+            if (this.paddleR) this.paddleR.color = this.theme.paddleRColor;
+        }
+    }
+
     resetGame() {
         this.state = STATE.STARTUP;
         clearTimeout(this.intervalID);
         this.resetBall();
-        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, "#00FFFF"); // Cyan
-        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, "#FF00FF"); // Magenta
+        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, this.theme.paddleLColor);
+        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, this.theme.paddleRColor);
     }
 
     resetBall() {
