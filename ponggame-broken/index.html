@@ -70,6 +70,10 @@
                     <label>Game</label>
                     <button id="reset-btn" class="styled-button">Restart</button>
                 </div>
+                <div class="control-group">
+                    <label>Navigation</label>
+                    <button id="home-btn" class="styled-button">Home</button>
+                </div>
             </div>
         </main>
 
@@ -97,6 +101,14 @@
         </aside>
     </div>
 
+    <script>
+        const homeButton = document.getElementById('home-btn');
+        if (homeButton) {
+            homeButton.addEventListener('click', () => {
+                window.location.href = '../index.html';
+            });
+        }
+    </script>
 </body>
 
 </html>

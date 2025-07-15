@@ -7,6 +7,29 @@
     <title>Gompei Clicker</title>
     <!-- <link rel="stylesheet" href="overlays.css"> -->
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #header {
+            position: relative; /* Needed for absolute positioning of the child button */
+            padding: 10px 20px;
+        }
+        .home-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #86c232; /* A green that might fit a grass theme */
+            color: #222629;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .home-button:hover {
+            background-color: #61892f;
+            transform: translateY(-2px);
+        }
+    </style>
     <script src="./game.js" defer></script>
 </head>
 
@@ -14,6 +37,7 @@
     <div id="header">
         <h1>Gompei's Grass Game</h1>
         <h2 id="score">Score: 0</h2>
+        <a href="../index.html" class="home-button">Home</a>
     </div>
     <div id="game-body">
         <div id="main-game-content">
