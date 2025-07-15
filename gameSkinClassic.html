@@ -6,6 +6,9 @@
     <title>Classic</title>
     <meta name="generator" content="thesitewizard.com's Layout Wizard 4.0.0">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Meta tags for a better mobile experience, especially on iOS for "Add to Home Screen" -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="stylesheet" type="text/css" media="all" href="styles.css">
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
@@ -37,14 +40,47 @@
 
         /* Styles for the interactive box and circle */
         #game-container {
-            width: 800px;
-            height: 600px;
-            border: 2px solid black;
-            position: relative; /* Crucial for positioning the child element */
-            background-color: #f0f0f0;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background-color: #000; /* Black for letterboxing */
+            position: relative; /* For positioning children like the start menu and fullscreen button */
             margin: 20px auto; /* Center the container */
+            border-radius: 15px; /* Rounded corners */
+            overflow: hidden; /* This is the key to clip the child viewport's corners */
+            transition: all 0.4s ease-in-out;
         }
 
+        /* When fullscreen, the container should fill the screen */
+        #game-container:fullscreen {
+            width: 100%;
+            height: 100%;
+            border-radius: 0; /* Remove rounded corners in fullscreen */
+        }
+
+        #game-viewport {
+            width: 800px;
+            height: 450px; /* 16:9 aspect ratio with 800px width */
+            background-color: #f0f0f0; /* The actual game background */ 
+            position: absolute; /* Take out of flow to allow parent to scale correctly */
+            top: 50%;
+            left: 50%;
+            overflow: hidden; /* Keeps player and obstacles inside */
+            transform-origin: center; /* Scale/transform from the center */
+            transition: transform 0.4s ease-in-out, border-radius 0.4s ease-in-out;
+            border-radius: 15px;
+        }
+
+        #game-viewport::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: inherit; /* Match the viewport's corners */
+            box-shadow: inset 0 0 0 2px black; /* Simulate the border inside */
+            z-index: 2; /* Above game elements, below UI */
+            pointer-events: none; /* Don't block mouse/touch events */
+        }
+        
         #player-circle {
             width: 50px;
             height: 50px;
@@ -71,7 +107,7 @@
 
         #obstacle-rectangle {
             width: 100px;
-            height: 570px;
+            height: 416px; /* Adjusted for 16:9 aspect ratio */
             background-color: red;
             position: absolute;
             display: none; /* Hidden until game starts */
@@ -108,6 +144,31 @@
             z-index: 5;
             display: none; /* Hidden until game starts */
         }
+        
+        #fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5em;
+            color: #333;
+            background-color: rgba(240, 240, 240, 0.7);
+            border: 2px solid;
+            border-color: #fff #aaa #aaa #fff;
+            border-radius: 8px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 15;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            line-height: 1;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+
 
         /* --- Mobile Controls --- */
         #mobile-controls {
@@ -124,7 +185,7 @@
 
         .control-cluster {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             pointer-events: all; /* But not through the clusters */
         }
 
@@ -134,9 +195,9 @@
         }
 
         .control-btn {
-            width: 60px;
-            height: 60px;
-            font-size: 2em;
+            width: 75px;
+            height: 75px;
+            font-size: 2.5em;
             font-weight: bold;
             color: #333;
             background-color: rgba(240, 240, 240, 0.7); /* Semi-transparent */
@@ -168,6 +229,46 @@
             border: none;
             border-radius: 0;
         }
+
+        body.standalone-mode #game-container #game-viewport,
+        #game-container:fullscreen #game-viewport {
+            border-radius: 0;
+        }
+
+        /* --- iOS Standalone (Home Screen App) Mode --- */
+        /* When running as a home screen app, hide all non-game content */
+        body.standalone-mode #tswheader,
+        body.standalone-mode #tswsidecol,
+        body.standalone-mode #tswfooter,
+        body.standalone-mode #tswcontproper > h1,
+        body.standalone-mode #tswcontproper > p,
+        body.standalone-mode #tswcontproper > h2,
+        body.standalone-mode #tswcontproper > a.skin-button {
+            display: none;
+        }
+
+        /* Make the game container and its parents fill the entire screen */
+        body.standalone-mode,
+        body.standalone-mode #tswcontainer,
+        body.standalone-mode #tswcontent,
+        body.standalone-mode #tswcontproper {
+            /* Override default layout styles for true fullscreen */
+            width: 100%;
+            float: none;
+            height: 100vh; /* Use viewport height */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        /* Force the game container to fill its new full-screen parent */
+        body.standalone-mode #game-container {
+            height: 100%;
+            max-width: none;
+            margin: 0;
+            border-radius: 0;
+            aspect-ratio: auto; /* Override aspect-ratio to allow full height */
+        }
     </style>
 </head>
 
@@ -194,21 +295,24 @@
                 <p>Use A/D or Left/Right arrow keys to move. Use W or the Up arrow key to jump. Use S or the Down arrow key to squish.</p>
 
                 <div id="game-container">
-                    <div id="score">Score: 0</div>
+                    <button id="fullscreen-btn" title="Toggle Fullscreen">&#10546;</button>
                     <div id="start-menu">
                         <button id="start-button">Start Game</button>
                     </div>
-                    <div id="player-circle"></div>
-                    <div id="obstacle-triangle"></div>
-                    <div id="obstacle-rectangle"></div>
-                    <div id="mobile-controls">
-                        <div class="control-cluster" id="movement-controls">
-                            <button id="btn-left" class="control-btn">◀</button>
-                            <button id="btn-right" class="control-btn">▶</button>
-                        </div>
-                        <div class="control-cluster" id="action-controls">
-                            <button id="btn-up" class="control-btn">▲</button>
-                            <button id="btn-down" class="control-btn">▼</button>
+                    <div id="game-viewport">
+                        <div id="score">Score: 0</div>
+                        <div id="player-circle"></div>
+                        <div id="obstacle-triangle"></div>
+                        <div id="obstacle-rectangle"></div>
+                        <div id="mobile-controls">
+                            <div class="control-cluster" id="movement-controls">
+                                <button id="btn-left" class="control-btn">◀</button>
+                                <button id="btn-right" class="control-btn">▶</button>
+                            </div>
+                            <div class="control-cluster" id="action-controls">
+                                <button id="btn-up" class="control-btn">▲</button>
+                                <button id="btn-down" class="control-btn">▼</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -257,8 +361,10 @@
     <script>
         const player = document.getElementById('player-circle');
         const container = document.getElementById('game-container');
+        const gameViewport = document.getElementById('game-viewport');
         const startMenu = document.getElementById('start-menu');
         const startButton = document.getElementById('start-button');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
         const obstacle = document.getElementById('obstacle-triangle');
         const obstacleRectElement = document.getElementById('obstacle-rectangle');
         const scoreDisplay = document.getElementById('score');
@@ -268,6 +374,18 @@
         const btnUp = document.getElementById('btn-up');
         const btnDown = document.getElementById('btn-down');
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isStandalone = window.navigator.standalone === true; // Check for iOS Home Screen app mode
+
+        // If running as a Home Screen app on iOS, add a class to the body to trigger fullscreen styles.
+        if (isStandalone) {
+            document.body.classList.add('standalone-mode');
+        }
+        
+        // Game world constants
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 450; // 16:9 aspect ratio
+        const BORDER_WIDTH = 2;  // Corresponds to the CSS border width
         
         // Player state
         let x;
@@ -483,11 +601,13 @@
             y += vy;
 
             // Enforce container boundaries
-            const maxX = container.clientWidth - player.offsetWidth;
-            const maxY = container.clientHeight - player.offsetHeight;
+            const minX = BORDER_WIDTH;
+            const maxX = GAME_WIDTH - player.offsetWidth - BORDER_WIDTH;
+            const minY = BORDER_WIDTH;
+            const maxY = GAME_HEIGHT - player.offsetHeight - BORDER_WIDTH;
 
             // Horizontal boundaries
-            x = Math.max(0, Math.min(maxX, x));
+            x = Math.max(minX, Math.min(maxX, x));
 
             // Vertical boundaries (ground check)
             if (y >= maxY) {
@@ -499,8 +619,8 @@
             }
 
             // Vertical boundaries (ceiling check)
-            if (y < 0) {
-                y = 0;
+            if (y < minY) {
+                y = minY;
                 vy = 0; // Stop upward movement if it hits the ceiling
             }
 
@@ -508,11 +628,11 @@
             player.style.left = `${x}px`;
             player.style.top = `${y}px`;
 
-            // --- Obstacle Movement ---
+            // --- Obstacle Movement (respecting borders) ---
             obstacleX += obstacleSpeed * obstacleDirection;
-            const obstacleMaxX = container.clientWidth - obstacle.offsetWidth;
-            if (obstacleX <= 0) {
-                obstacleX = 0;
+            const obstacleMaxX = GAME_WIDTH - obstacle.offsetWidth - BORDER_WIDTH;
+            if (obstacleX <= BORDER_WIDTH) {
+                obstacleX = BORDER_WIDTH;
                 obstacleDirection = 1; // Move right
             } else if (obstacleX >= obstacleMaxX) {
                 obstacleX = obstacleMaxX;
@@ -520,11 +640,11 @@
             }
             obstacle.style.left = `${obstacleX}px`;
 
-            // --- Rectangle Obstacle Movement ---
+            // --- Rectangle Obstacle Movement (respecting borders) ---
             rectObstacleX += rectObstacleSpeed * rectObstacleDirection;
-            const rectObstacleMaxX = container.clientWidth - obstacleRectElement.offsetWidth;
-            if (rectObstacleX <= 0) {
-                rectObstacleX = 0;
+            const rectObstacleMaxX = GAME_WIDTH - obstacleRectElement.offsetWidth - BORDER_WIDTH;
+            if (rectObstacleX <= BORDER_WIDTH) {
+                rectObstacleX = BORDER_WIDTH;
                 rectObstacleDirection = 1; // Move right
             } else if (rectObstacleX >= rectObstacleMaxX) {
                 rectObstacleX = rectObstacleMaxX;
@@ -558,19 +678,19 @@
             startButton.textContent = 'Start Game'; // Reset button text
 
             // Set initial player position to the center of the container
-            x = (container.clientWidth - player.offsetWidth) / 2;
-            y = (container.clientHeight - player.offsetHeight) / 2;
+            x = (GAME_WIDTH - player.offsetWidth) / 2;
+            y = (GAME_HEIGHT - player.offsetHeight) / 2;
             isSquished = false;
             player.style.height = '50px'; // Ensure player is not squished on restart
 
             // Reset obstacle
-            obstacleX = 0; // Initial horizontal position, starts on the left
+            obstacleX = BORDER_WIDTH; // Initial horizontal position, starts on the left border
             obstacleSpeed = 2; // Reset to initial speed
             obstacleDirection = 1; // Start moving right
 
             // Reset rectangle obstacle
-            rectObstacleY = 0; // Positioned from the top to be un-jumpable
-            rectObstacleX = container.clientWidth - obstacleRectElement.offsetWidth; // Start on the right
+            rectObstacleY = BORDER_WIDTH; // Positioned from the top border
+            rectObstacleX = GAME_WIDTH - obstacleRectElement.offsetWidth - BORDER_WIDTH; // Start on the right border
             rectObstacleDirection = -1; // Start moving left
 
             // Reset and start score
@@ -585,6 +705,55 @@
 
             gameLoop();
         });
+
+        // --- Scaling Logic ---
+        function resizeGame() {
+            const containerRect = container.getBoundingClientRect();
+            // Calculate the best scale to fit the game within the container
+            const scale = Math.min(
+                containerRect.width / GAME_WIDTH,
+                containerRect.height / GAME_HEIGHT
+            );
+            // Apply the scale to the viewport
+            gameViewport.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        // Use ResizeObserver to automatically run resizeGame when the container size changes.
+        const resizeObserver = new ResizeObserver(() => {
+            resizeGame();
+        });
+        resizeObserver.observe(container);
+        // Call it once on load to set the initial size correctly
+        resizeGame();
+
+        // --- Fullscreen API ---
+        function toggleFullScreen() {
+            const doc = window.document;
+            const gameEl = container;
+
+            const requestFullScreen = gameEl.requestFullscreen || gameEl.mozRequestFullScreen || gameEl.webkitRequestFullscreen || gameEl.msRequestFullscreen;
+            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                requestFullScreen.call(gameEl);
+            } else {
+                cancelFullScreen.call(doc);
+            }
+        }
+
+        // --- Fullscreen Button Logic ---
+        const fullscreenAPISupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled;
+
+        if (isIOS) {
+            fullscreenBtn.addEventListener('click', () => {
+                document.body.classList.toggle('standalone-mode');
+                setTimeout(resizeGame, 0);
+            });
+        } else if (fullscreenAPISupported) {
+            fullscreenBtn.addEventListener('click', toggleFullScreen);
+        } else {
+            fullscreenBtn.style.display = 'none';
+        }
 
         // --- Mobile Control Setup ---
         function setupControlButton(button, key) {
