@@ -76,7 +76,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             border-radius: inherit; /* Match the viewport's corners */
-            box-shadow: inset 0 0 0 2px black; /* Simulate the border inside */
+            box-shadow: inset 0 0 0 4px black; /* Simulate the border inside */
             z-index: 2; /* Above game elements, below UI */
             pointer-events: none; /* Don't block mouse/touch events */
         }
@@ -107,7 +107,7 @@
 
         #obstacle-rectangle {
             width: 100px;
-            height: 416px; /* Adjusted for 16:9 aspect ratio */
+            height: 416px; /* Adjusted for 16:9 aspect ratio to allow squished player to pass under */
             background-color: red;
             position: absolute;
             display: none; /* Hidden until game starts */
@@ -385,7 +385,7 @@
         // Game world constants
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 450; // 16:9 aspect ratio
-        const BORDER_WIDTH = 2;  // Corresponds to the CSS border width
+        const BORDER_WIDTH = 4;  // Corresponds to the CSS border width
         
         // Player state
         let x;
