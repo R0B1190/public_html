@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pool Game</title>
+    <link rel="stylesheet" type="text/css" media="all" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
+    <link rel="stylesheet" type="text/css" href="nav-styles.css" />
+    <link rel="stylesheet" href="pool.css">
+    <style>
+        #tswcssbuttons ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #tswcssbuttons li a {
+            display: block;
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s ease-in-out;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #tswcssbuttons li a:hover {
+            background-color: #ddd;
+        }
+
+        /* Style for the active page link on Pool.html */
+        #tswcssbuttons a[href="Pool.html"] {
+            background-color: #0059b3; /* A nice blue color */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="tswcssbuttons">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="aboutme.html">Page 2</a></li>
+            <li><a href="projects.html">Game</a></li>
+            <li><a href="word_fold/game.html">Word Fold</a></li>
+            <li><a href = "clickgame-broken/index.html">Gompie's Grass Game</a></li>
+            <li><a href = "ponggame-broken/index.html">Pong</a></li>
+            <li><a href="Pool.html">Pool</a></li>
+        </ul>
+    </div>
+
+    <div id="game-container">
+        <h1>Pool Game</h1>
+        <p>Click and drag away from the cue ball to aim, release to shoot!</p>
+        <h2 id="turn-indicator"></h2>
+        <div id="player-status-container">
+            <div id="player1-status">Player 1: ???</div>
+            <div id="player2-status">Player 2: ???</div>
+        </div>
+        <canvas id="pool-table" width="1000" height="500"></canvas>
+    </div>
+
+    <script src="pool.js"></script>
+</body>
+</html>
