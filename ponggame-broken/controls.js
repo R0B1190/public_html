@@ -1,13 +1,19 @@
 window.addEventListener("keydown", keyDown);
-const difficulty_selector = document.getElementById("difficulty");
-if (difficulty_selector) difficulty_selector.addEventListener("change", set_difficulty);
-const cpu_paddle_selector = document.getElementById("cpu_paddle_selector");
-if (cpu_paddle_selector) cpu_paddle_selector.addEventListener("change", set_cpu_paddle);
-const theme_selector = document.getElementById("theme_selector");
-if (theme_selector) theme_selector.addEventListener("change", set_theme);
+
+// New event listeners for the updated controls
+const difficulty_slider = document.getElementById("difficulty-slider");
+if (difficulty_slider) difficulty_slider.addEventListener("input", set_difficulty);
+
+document.querySelectorAll('.player-type-selector').forEach(selector => {
+    selector.addEventListener('change', set_player_type);
+});
+
+document.querySelectorAll('.theme-btn').forEach(button => {
+    button.addEventListener('click', handleThemeButtonClick);
+});
+
 const winning_score_selector = document.getElementById("winning_score_selector");
 if (winning_score_selector) winning_score_selector.addEventListener("change", set_winning_score);
-
 function keyDown(event) {
     const key = event.code;
     // console.log(`KEYDOWN: ${key}`);
@@ -19,11 +25,18 @@ function keyDown(event) {
         case "KeyS":
             model.paddleL.vely = PADDLE_VELOCITY;
             break;
+
         case "ArrowUp":
             model.paddleR.vely = -PADDLE_VELOCITY;
             break;
         case "ArrowDown":
             model.paddleR.vely = PADDLE_VELOCITY;
+            break;
+
+        case "End":
+            if (model.state === STATE.GAMEOVER) {
+                resetGame();
+            }
             break;
     }
 }
@@ -50,18 +63,24 @@ function resetGame() {
     onTick();
 }
 
-function set_cpu_paddle(event) {
-    const side = event.target.value;
-    model.cpu_left = (side === 'left' || side === 'both');
-    model.cpu_right = (side === 'right' || side === 'both');
+function set_player_type(event) {
+    const side = event.target.dataset.side;
+    const is_cpu = event.target.value === 'cpu';
+    if (side === 'left') {
+        model.cpu_left = is_cpu;
+    } else if (side === 'right') {
+        model.cpu_right = is_cpu;
+    }
 }
 
 function set_difficulty(event) {
     model.cpu_difficulty = parseInt(event.target.value);
 }
 
-function set_theme(event) {
-    const themeName = event.target.value;
+function handleThemeButtonClick(event) {
+    const themeName = event.target.dataset.theme;
+    document.querySelector('.theme-btn.active').classList.remove('active');
+    event.target.classList.add('active');
     // Update model colors first
     model.setTheme(themeName);
     // Load new assets and redraw once the new view script is loaded

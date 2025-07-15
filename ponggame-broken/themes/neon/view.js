@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gameboard");
 const ctx = canvas.getContext("2d");
-const scoreboard = document.getElementById("scoreboard");
+const scoreLeftEl = document.getElementById("score-left");
+const scoreRightEl = document.getElementById("score-right");
 
 // --- Animated Background ---
 const stars = [];
@@ -49,7 +50,8 @@ function drawStarfield(ctx) {
 }
 
 function updateScore(model) {
-    scoreboard.innerHTML = `${model.scoreL} : ${model.scoreR}`;
+    scoreLeftEl.textContent = model.scoreL;
+    scoreRightEl.textContent = model.scoreR;
 }
 
 function draw_game(model) {

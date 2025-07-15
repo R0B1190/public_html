@@ -15,37 +15,60 @@
 </head>
 
 <body>
-    <h1>MY PONG GAME</h1>
-    <h3>By Niko and Haram</h3>
-    <canvas id="gameboard" width="500" height="500"></canvas>
-    <div id="scoreboard">0 : 0</div>
-    <button id="reset" onclick="resetGame()">RESTART GAME</button>
-    <br />
-    <label for="cpu_paddle_selector">Game Mode:</label>
-    <select id="cpu_paddle_selector">
-        <option value="none">Player vs Player</option>
-        <option value="right" selected>Player vs CPU</option>
-        <option value="left">CPU vs Player</option>
-        <option value="both">CPU vs CPU</option>
-    </select>
-    <label for="difficulty">Difficulty:</label>
-    <select id="difficulty">
-        <option value="0">Easy</option>
-        <option value="1">Medium</option>
-        <option value="2">Hard</option>
-    </select>
-    <label for="theme_selector">Theme:</label>
-    <select id="theme_selector">
-        <option value="NEON" selected>Neon</option>
-        <option value="CLASSIC">Classic</option>
-    </select>
-    <label for="winning_score_selector">Play to:</label>
-    <select id="winning_score_selector">
-        <option value="3">3</option>
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="15">15</option>
-    </select>
+    <div class="game-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar" id="sidebar-left">
+            <h2>Player 1</h2>
+            <div class="score" id="score-left">0</div>
+            <div class="control-group">
+                <label for="player-left-type">Control</label>
+                <select id="player-left-type" class="player-type-selector" data-side="left">
+                    <option value="player" selected>Player</option>
+                    <option value="cpu">CPU</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Main Game Area -->
+        <main class="main-content">
+            <canvas id="gameboard" width="500" height="500"></canvas>
+            <div class="game-controls">
+                <div class="control-group">
+                    <label for="difficulty-slider">Difficulty</label>
+                    <input type="range" id="difficulty-slider" min="0" max="2" value="0" class="styled-slider">
+                    <div class="slider-labels">
+                        <span>Easy</span><span>Medium</span><span>Hard</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Theme</label>
+                    <div id="theme-buttons" class="button-group">
+                        <button class="theme-btn active" data-theme="NEON">Neon</button>
+                        <button class="theme-btn" data-theme="CLASSIC">Classic</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="winning-score-selector">Play To</label>
+                    <input type="number" id="winning-score-selector" value="10" min="1" max="99" class="styled-input">
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar" id="sidebar-right">
+            <h2>Player 2</h2>
+            <div class="score" id="score-right">0</div>
+            <div class="control-group">
+                <label for="player-right-type">Control</label>
+                <select id="player-right-type" class="player-type-selector" data-side="right">
+                    <option value="player">Player</option>
+                    <option value="cpu" selected>CPU</option>
+                </select>
+            </div>
+        </aside>
+    </div>
 
 </body>
 

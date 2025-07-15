@@ -1,3 +1,4 @@
+/*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
 body {
     background-color: #111;
     color: #FFF;
@@ -5,13 +6,109 @@ body {
     text-align: center;
 }
 
-#scoreboard {
-    font-size: 48px;
-    font-weight: bold;
-    padding: 10px;
-}
-
 #gameboard {
     border: 2px solid #FFF;
     background-color: #000;
+}
+
+/*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
+/* Layout */
+/*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+}
+
+.sidebar {
+    width: 150px;
+    padding: 15px;
+    border: 2px solid #FFF;
+    background-color: #000;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+}
+
+.main-content {
+    text-align: center;
+}
+
+.game-controls {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px;
+    border: 2px solid #FFF;
+    background-color: #000;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-group label {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+/*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
+/* Component Styles */
+/*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
+.score {
+    font-size: 5em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+select,
+.styled-input {
+    background-color: #000;
+    color: #FFF;
+    border: 1px solid #FFF;
+    padding: 5px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Button Group for Themes */
+.button-group .theme-btn {
+    background: #000;
+    border: 2px solid #FFF;
+    color: #FFF;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.button-group .theme-btn:first-child {
+    border-radius: 0;
+}
+
+.button-group .theme-btn:last-child {
+    border-radius: 0;
+    border-left: none;
+}
+
+.button-group .theme-btn.active {
+    background-color: #FFF;
+    color: #000;
+}
+
+/* Difficulty Slider */
+.styled-slider {
+    width: 120px;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 120px;
+    font-size: 0.7em;
 }

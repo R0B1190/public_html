@@ -1,18 +1,20 @@
 const canvas = document.getElementById("gameboard");
 const ctx = canvas.getContext("2d");
-const scoreboard = document.getElementById("scoreboard");
+const scoreLeftEl = document.getElementById("score-left");
+const scoreRightEl = document.getElementById("score-right");
 
 function updateScore(model) {
-    scoreboard.innerHTML = `${model.scoreL} : ${model.scoreR}`;
+    scoreLeftEl.textContent = model.scoreL;
+    scoreRightEl.textContent = model.scoreR;
 }
 
 function draw_game(model) {
     // Solid black background
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = model.theme.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Solid center line
-    ctx.strokeStyle = "#FFFFFF";
+    ctx.strokeStyle = model.theme.foreground;
     ctx.lineWidth = 4;
     ctx.setLineDash([]); // No dashes
     ctx.beginPath();
@@ -20,13 +22,14 @@ function draw_game(model) {
     ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.stroke();
 
-    draw_ball(ctx, model.ball);
+    draw_ball(ctx, model);
     draw_paddle(ctx, model.paddleL);
     draw_paddle(ctx, model.paddleR);
 }
 
-function draw_ball(ctx, ball) {
-    ctx.fillStyle = '#FFFFFF';
+function draw_ball(ctx, model) {
+    const ball = model.ball;
+    ctx.fillStyle = model.theme.ballColor;
     ctx.beginPath();
     // Draw a square for a retro feel
     ctx.fillRect(ball.posx - BALL_RADIUS, ball.posy - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2);
@@ -46,36 +49,16 @@ function drawStarfield(ctx) { }
 // Empty init function
 function initStarfield() { }
 
-
 function draw_victory_screen(model) {
     const winner = model.scoreL >= model.winningScore ? "Left Player" : "Right Player";
-    const winnerColor = model.scoreL >= model.winningScore ? model.paddleL.color : model.paddleR.color;
 
-    ctx.save();
-    // Semi-transparent background overlay
     ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Victory Text
-    ctx.fillStyle = winnerColor;
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.shadowColor = winnerColor;
-    ctx.shadowBlur = 15;
-    ctx.font = "60px 'Courier New', Courier, monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const victoryMessage = `${winner} Wins!`;
-    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
-    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
-
-    // "Press End to Restart" Text
     ctx.fillStyle = "white";
-    ctx.shadowColor = "white";
-    ctx.shadowBlur = 10;
-    ctx.font = "24px 'Courier New', Courier, monospace";
-    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 40);
-
-    ctx.restore();
+    ctx.font = "40px 'Courier New', Courier, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(`${winner} Wins!`, canvas.width / 2, canvas.height / 2 - 20);
+    ctx.font = "20px 'Courier New', Courier, monospace";
+    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 20);
 }
