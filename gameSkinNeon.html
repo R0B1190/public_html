@@ -299,7 +299,13 @@
                          0 0 20px #00f5d4;
         }
 
+        body.standalone-mode #game-container #game-viewport,
+        #game-container:fullscreen #game-viewport {
+            border-radius: 0;
+        }
+
         /* --- iOS Standalone (Home Screen App) Mode --- */
+        /* When running as a home screen app, hide all non-game content */
         body.standalone-mode #tswheader,
         body.standalone-mode #tswsidecol,
         body.standalone-mode #tswfooter,
@@ -309,17 +315,28 @@
         body.standalone-mode #tswcontproper > a.skin-button {
             display: none;
         }
+
+        /* Make the game container and its parents fill the entire screen */
         body.standalone-mode,
         body.standalone-mode #tswcontainer,
         body.standalone-mode #tswcontent,
         body.standalone-mode #tswcontproper {
-            width: 100%; float: none; height: 100vh; margin: 0; padding: 0; overflow: hidden;
+            /* Override default layout styles for true fullscreen */
+            width: 100%;
+            float: none;
+            height: 100vh; /* Use viewport height */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
         }
+
+        /* Force the game container to fill its new full-screen parent */
         body.standalone-mode #game-container {
-            height: 100%; max-width: none; margin: 0; border-radius: 0; aspect-ratio: auto;
-        }
-        body.standalone-mode #game-container #game-viewport {
+            height: 100%;
+            max-width: none;
+            margin: 0;
             border-radius: 0;
+            aspect-ratio: auto; /* Override aspect-ratio to allow full height */
         }
     </style>
 </head>
