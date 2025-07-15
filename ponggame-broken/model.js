@@ -6,15 +6,23 @@ const THEMES = {
         name: 'NEON',
         cssPath: 'themes/neon/style.css',
         jsPath: 'themes/neon/view.js',
-        paddleLColor: '#00FFFF', // Cyan
-        paddleRColor: '#FF00FF', // Magenta
+        background: 'rgba(0, 0, 0, 0.15)',
+        foreground: 'rgba(255, 255, 255, 0.5)',
+        paddleLColor: '#00FFFF',
+        paddleRColor: '#FF00FF',
+        ballColor: '#FFFF00',
+        hasStarfield: true
     },
     CLASSIC: {
         name: 'CLASSIC',
         cssPath: 'themes/classic/style.css',
         jsPath: 'themes/classic/view.js',
+        background: '#000000',
+        foreground: '#FFFFFF',
         paddleLColor: '#FFFFFF',
         paddleRColor: '#FFFFFF',
+        ballColor: '#FFFFFF',
+        hasStarfield: false
     }
 };
 
@@ -36,7 +44,7 @@ class Model {
     cpu_right = true;
     winningScore = 10;
     cpu_difficulty = CPU_DIFFICULTY.EASY;
-    theme = THEMES.CLASSIC; // Default theme
+    theme = THEMES.NEON; // Default theme
     state = STATE.STARTUP;
     intervalID = -1;
 
@@ -57,7 +65,6 @@ class Model {
         this.state = STATE.STARTUP;
         this.scoreL = 0;
         this.scoreR = 0;
-        updateScore(this); // Immediately update the scoreboard display
         clearTimeout(this.intervalID);
         this.resetBall();
         this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, this.theme.paddleLColor);

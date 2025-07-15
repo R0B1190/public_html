@@ -55,15 +55,15 @@ function updateScore(model) {
 function draw_game(model) {
     // FIX: Draw the semi-transparent overlay FIRST. This creates the motion-blur trail
     // for all elements (particles, ball, paddles) that are drawn after it.
-    ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; // Lower alpha for a longer, more noticeable trail
+    ctx.fillStyle = model.theme.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Dashed center line with a subtle glow
     ctx.save();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.strokeStyle = model.theme.foreground;
     ctx.lineWidth = 4;
     ctx.setLineDash([15, 15]);
-    ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
+    ctx.shadowColor = model.theme.foreground;
     ctx.shadowBlur = 3; // Subtle glow for the center line
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, 0);
@@ -71,15 +71,18 @@ function draw_game(model) {
     ctx.stroke();
     ctx.restore(); // Restore context to remove shadow, line dash etc. for next draws
 
-    drawStarfield(ctx); // Draw the new parallax starfield
+    if (model.theme.hasStarfield) {
+        drawStarfield(ctx);
+    }
 
-    draw_ball(ctx, model.ball);
+    draw_ball(ctx, model);
     draw_paddle(ctx, model.paddleL);
     draw_paddle(ctx, model.paddleR);
 }
 
-function draw_ball(ctx, ball) {
-    const ball_color = "#FFFF00"; // Neon Yellow
+function draw_ball(ctx, model) {
+    const ball_color = model.theme.ballColor;
+    const ball = model.ball;
     ctx.save();
     ctx.fillStyle = ball_color;
     ctx.shadowColor = ball_color;
@@ -87,6 +90,37 @@ function draw_ball(ctx, ball) {
     ctx.beginPath();
     ctx.arc(ball.posx, ball.posy, BALL_RADIUS, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.restore();
+}
+
+function draw_victory_screen(model) {
+    const winner = model.scoreL >= model.winningScore ? "Left Player" : "Right Player";
+    const winnerColor = model.scoreL >= model.winningScore ? model.paddleL.color : model.paddleR.color;
+
+    ctx.save();
+    // Semi-transparent background overlay
+    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Victory Text
+    ctx.fillStyle = winnerColor;
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.shadowColor = winnerColor;
+    ctx.shadowBlur = 15;
+    ctx.font = "45px 'Orbitron', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const victoryMessage = `${winner} Wins!`;
+    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
+    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2 - 40);
+
+    // "Press End to Restart" Text
+    ctx.fillStyle = "white";
+    ctx.font = "24px 'Orbitron', sans-serif";
+    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 40);
+
     ctx.restore();
 }
 

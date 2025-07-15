@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Pong Game</title>
     <link id="theme-style" rel="stylesheet" href="">
+    <script src="model.js" defer></script>
     <script src="ball.js" defer></script>
     <script src="paddle.js" defer></script>
     <script src="controls.js" defer></script>
-    <!-- <script src="view.js" defer></script> -->
-    <script src="model.js" defer></script>
     <script src="pong.js" defer></script>
 </head>
 
@@ -19,7 +18,7 @@
     <h1>MY PONG GAME</h1>
     <h3>By Niko and Haram</h3>
     <canvas id="gameboard" width="500" height="500"></canvas>
-    <div id="scoreboard">0 : 0</div>    
+    <div id="scoreboard">0 : 0</div>
     <button id="reset" onclick="resetGame()">RESTART GAME</button>
     <br />
     <label for="cpu_paddle_selector">Game Mode:</label>
@@ -34,6 +33,11 @@
         <option value="0">Easy</option>
         <option value="1">Medium</option>
         <option value="2">Hard</option>
+    </select>
+    <label for="theme_selector">Theme:</label>
+    <select id="theme_selector">
+        <option value="NEON" selected>Neon</option>
+        <option value="CLASSIC">Classic</option>
     </select>
     <label for="winning_score_selector">Play to:</label>
     <select id="winning_score_selector">

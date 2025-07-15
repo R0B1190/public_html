@@ -1,30 +1,26 @@
 let model = new Model();
 
-// Wait for the entire page to load, then load the initial theme.
-// The game loop (onTick) will be passed as a callback to start the game
-// only AFTER the theme's view.js file has been loaded.
 window.addEventListener('load', () => {
+    // Load initial theme and start the game loop as a callback
     loadThemeAssets(model.theme.name, onTick);
 });
 
 function onTick() {
-    if (model.state === STATE.PLAYING) {
-        model.state = play(); // This might change state to GAMEOVER
-    } else if (model.state === STATE.STARTUP) {
+    clearTimeout(model.intervalID); // Prevent multiple loops
+
+    if (model.state === STATE.STARTUP) {
         model.state = STATE.PLAYING;
+    } else if (model.state === STATE.PLAYING) {
+        model.state = play();
     }
 
-    // Always draw the game board
     draw_game(model);
 
-    // If the game is over, draw the victory screen and stop the loop
     if (model.state === STATE.GAMEOVER) {
         draw_victory_screen(model);
-        clearTimeout(model.intervalID); // Stop the game loop.
-        return; // Don't set another timeout
+    } else {
+        model.intervalID = setTimeout(onTick, 10);
     }
-
-    model.intervalID = setTimeout(onTick, 10);
 }
 
 function play() {
