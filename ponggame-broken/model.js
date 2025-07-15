@@ -51,7 +51,9 @@ class Model {
     intervalID = -1;
 
     constructor() {
-        this.resetGame();
+        // Initialize paddles only once
+        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, this.theme.paddleLColor);
+        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, this.theme.paddleRColor);
     }
 
     setTheme(themeName) {
@@ -68,16 +70,27 @@ class Model {
         this.scoreL = 0;
         this.scoreR = 0;
         clearTimeout(this.intervalID);
+
+        // Reset paddle positions to the center
+        this.paddleL.posy = BOARD_HEIGHT / 2 - this.paddleL.height / 2;
+        this.paddleL.vely = 0;
+        this.paddleR.posy = BOARD_HEIGHT / 2 - this.paddleR.height / 2;
+        this.paddleR.vely = 0;
+
         this.resetBall();
-        this.paddleL = new Paddle(0, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.LEFT, this.theme.paddleLColor);
-        this.paddleR = new Paddle(BOARD_WIDTH - PADDLE_WiDTH, 0, PADDLE_WiDTH, PADDLE_HEIGHT, SIDE.RIGHT, this.theme.paddleRColor);
+        // After resetting the internal state, make sure the UI matches.
+        // This is crucial for when a game ends or is restarted.
+        if (typeof syncControlsWithModel === 'function') {
+            syncControlsWithModel();
+        }
     }
 
     resetBall() {
         // Randomly decide to serve left or right.
         const serveLeft = Math.random() < 0.5;
 
-        let angle = serveLeft ? -45 : -135; // 45 degrees for left, 135 degrees for right
+        // Use the full random range: (-45 to 45) or (135 to 225)
+        const angle = serveLeft ? (Math.random() * 90 + 135) : (Math.random() * 90 - 45);
 
         // Convert angle to radians for trigonometric functions
         const angleRad = angle * (Math.PI / 180);

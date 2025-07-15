@@ -1,17 +1,16 @@
-1. fix cpu slider div
 
-difficulty doesnt work
-
-2. ball dir random when first serving
 
 3. various controll btns fix
 
 4. neumorphic theme
 
-consistant rounding.
 
 classic - dont rounding
 
 crt effect??
 
 restart and end make the score reset
+
+arrow keys
+
+ball dir

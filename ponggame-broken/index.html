@@ -96,30 +96,6 @@
         </aside>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const playerTypeSelectors = document.querySelectorAll('.player-type-selector');
-
-            const toggleDifficultySlider = (side, selectedValue) => {
-                const optionsDiv = document.getElementById(`cpu-options-${side}`);
-                if (selectedValue === 'cpu') {
-                    optionsDiv.classList.remove('hidden');
-                } else {
-                    optionsDiv.classList.add('hidden');
-                }
-            };
-
-            playerTypeSelectors.forEach(selector => {
-                // Set initial state on load
-                toggleDifficultySlider(selector.dataset.side, selector.value);
-
-                // Add event listener for changes
-                selector.addEventListener('change', (e) => {
-                    toggleDifficultySlider(e.target.dataset.side, e.target.value);
-                });
-            });
-        });
-    </script>
 </body>
 
 </html>

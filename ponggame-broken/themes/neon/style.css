@@ -10,6 +10,7 @@ body {
 
 #gameboard {
     border: 2px solid #FF00FF;
+    border-radius: 8px;
     box-shadow: 0 0 15px #FF00FF, inset 0 0 10px #00FFFF;
     background-color: #000;
 }

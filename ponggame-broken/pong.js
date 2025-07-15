@@ -1,31 +1,8 @@
 let model = new Model();
 
 window.addEventListener('load', () => {
-    // Sync all controls with the initial model state.
-    const winningScoreInput = document.getElementById("winning_score_selector");
-    if (winningScoreInput) {
-        model.winningScore = parseInt(winningScoreInput.value) || 10;
-    }
-
-    document.querySelectorAll('.player-type-selector').forEach(selector => {
-        const side = selector.dataset.side;
-        const is_cpu = (side === 'left') ? model.cpu_left : model.cpu_right;
-        selector.value = is_cpu ? 'cpu' : 'human';
-
-        const sliderContainer = document.getElementById(`difficulty-${side}-container`);
-        if (sliderContainer) {
-            sliderContainer.style.display = is_cpu ? 'block' : 'none';
-        }
-    });
-
-    document.querySelectorAll('.difficulty-slider').forEach(slider => {
-        const side = slider.dataset.side;
-        if (side === 'left') {
-            slider.value = model.cpu_difficulty_left;
-        } else if (side === 'right') {
-            slider.value = model.cpu_difficulty_right;
-        }
-    });
+    // Initialize the game state and sync the UI for the first time.
+    model.resetGame();
 
     // Load initial theme and start the game loop as a callback
     loadThemeAssets(model.theme.name, onTick);

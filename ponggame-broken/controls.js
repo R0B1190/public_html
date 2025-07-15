@@ -17,7 +17,7 @@ document.querySelectorAll('.theme-btn').forEach(button => {
     button.addEventListener('click', handleThemeButtonClick);
 });
 
-const winning_score_selector = document.getElementById("winning_score_selector");
+const winning_score_selector = document.getElementById("winning-score-selector");
 if (winning_score_selector) winning_score_selector.addEventListener("change", set_winning_score);
 
 const reset_button = document.getElementById("reset-btn");
@@ -87,6 +87,41 @@ function resetGame() {
     onTick();
 }
 
+function syncControlsWithModel() {
+    // Sync winning score
+    const winningScoreInput = document.getElementById("winning-score-selector");
+    if (winningScoreInput) {
+        winningScoreInput.value = model.winningScore;
+    }
+
+    // Sync player type selectors and toggle difficulty sliders
+    document.querySelectorAll('.player-type-selector').forEach(selector => {
+        const side = selector.dataset.side;
+        const is_cpu = (side === 'left') ? model.cpu_left : model.cpu_right;
+        selector.value = is_cpu ? 'cpu' : 'human';
+
+        const optionsDiv = document.getElementById(`cpu-options-${side}`);
+        if (optionsDiv) {
+            optionsDiv.classList.toggle('hidden', !is_cpu);
+        }
+    });
+
+    // Sync difficulty sliders
+    document.querySelectorAll('.difficulty-slider').forEach(slider => {
+        const side = slider.dataset.side;
+        if (side === 'left') {
+            slider.value = model.cpu_difficulty_left;
+        } else if (side === 'right') {
+            slider.value = model.cpu_difficulty_right;
+        }
+    });
+
+    // Sync theme buttons
+    document.querySelectorAll('.theme-btn').forEach(button => {
+        button.classList.toggle('active', button.dataset.theme === model.theme.name);
+    });
+}
+
 function set_player_type(event) {
     const side = event.target.dataset.side;
     const is_cpu = event.target.value === 'cpu';
@@ -95,6 +130,8 @@ function set_player_type(event) {
     } else if (side === 'right') {
         model.cpu_right = is_cpu;
     }
+    // After updating the model, sync the entire UI to reflect the change.
+    syncControlsWithModel();
 }
 
 function set_difficulty(event) {
