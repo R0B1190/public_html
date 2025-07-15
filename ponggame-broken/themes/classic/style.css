@@ -101,6 +101,15 @@ select,
     color: #000;
 }
 
+button.styled-button {
+    background: #000;
+    border: 2px solid #FFF;
+    color: #FFF;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+}
+
 /* Difficulty Slider */
 .styled-slider {
     width: 120px;

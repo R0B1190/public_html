@@ -14,6 +14,9 @@ document.querySelectorAll('.theme-btn').forEach(button => {
 
 const winning_score_selector = document.getElementById("winning_score_selector");
 if (winning_score_selector) winning_score_selector.addEventListener("change", set_winning_score);
+
+const reset_button = document.getElementById("reset-btn");
+if (reset_button) reset_button.addEventListener("click", resetGame);
 function keyDown(event) {
     const key = event.code;
     // console.log(`KEYDOWN: ${key}`);

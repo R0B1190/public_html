@@ -147,29 +147,3 @@ function draw_paddle(ctx, paddle) {
     ctx.fill();
     ctx.restore();
 }
-
-function draw_victory_screen(model) {
-    const winner = model.scoreL >= model.winningScore ? "Left Player" : "Right Player";
-    const winnerColor = model.scoreL >= model.winningScore ? model.paddleL.color : model.paddleR.color;
-
-    ctx.save();
-    // Semi-transparent background overlay
-    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Victory Text
-    ctx.fillStyle = winnerColor;
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.shadowColor = winnerColor;
-    ctx.shadowBlur = 15;
-    ctx.font = "45px 'Courier New', Courier, monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const victoryMessage = `${winner} Wins!`;
-    ctx.fillText(victoryMessage, canvas.width / 2, canvas.height / 2);
-    ctx.strokeText(victoryMessage, canvas.width / 2, canvas.height / 2);
-
-    ctx.restore();
-}

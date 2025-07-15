@@ -1,6 +1,12 @@
 let model = new Model();
 
 window.addEventListener('load', () => {
+    // Sync the initial winning score from the HTML input to the model.
+    const scoreInput = document.getElementById("winning-score-selector");
+    if (scoreInput) {
+        model.winningScore = parseInt(scoreInput.value) || 10;
+    }
+
     // Load initial theme and start the game loop as a callback
     loadThemeAssets(model.theme.name, onTick);
 });

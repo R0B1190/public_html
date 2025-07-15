@@ -114,6 +114,17 @@ select,
     box-shadow: 0 0 10px #00FFFF;
 }
 
+button.styled-button {
+    background: transparent;
+    border: 2px solid #FF00FF;
+    color: #FF00FF;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    transition: all 0.2s ease-in-out;
+}
+
 /* Difficulty Slider */
 .styled-slider {
     width: 120px;
