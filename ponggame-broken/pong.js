@@ -34,7 +34,10 @@ function play() {
         if (scoreSide == SIDE.RIGHT) model.scoreL++;
         updateScore(model);
         model.resetBall();
-        if (model.scoreL >= model.winningScore || model.scoreR >= model.winningScore) return STATE.GAMEOVER;
+        // Check for a win, but only if a winning score is set (i.e., not 0 for endless mode)
+        if (model.winningScore > 0 && (model.scoreL >= model.winningScore || model.scoreR >= model.winningScore)) {
+            return STATE.GAMEOVER;
+        }
     }
     // Add serving the ball?
     // If a player wins, stop the game...
