@@ -1,5 +1,12 @@
 let model = new Model();
 
+// Wait for the entire page to load, then load the initial theme.
+// The game loop (onTick) will be passed as a callback to start the game
+// only AFTER the theme's view.js file has been loaded.
+window.addEventListener('load', () => {
+    loadThemeAssets(model.theme.name, onTick);
+});
+
 function onTick() {
     if (model.state === STATE.PLAYING) {
         model.state = play(); // This might change state to GAMEOVER

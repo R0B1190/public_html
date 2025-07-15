@@ -1,0 +1,17 @@
+body {
+    background-color: #111;
+    color: #FFF;
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+}
+
+#scoreboard {
+    font-size: 48px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+#gameboard {
+    border: 2px solid #FFF;
+    background-color: #000;
+}
