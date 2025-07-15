@@ -5,11 +5,10 @@ body {
     background-color: #0d0221;
     color: #f0f0f0;
     font-family: 'Orbitron', sans-serif;
-    text-align: center;
 }
 
 #gameboard {
-    border: 2px solid #FF00FF;
+    border-color: #FF00FF;
     border-radius: 8px;
     box-shadow: 0 0 15px #FF00FF, inset 0 0 10px #00FFFF;
     background-color: #000;
@@ -18,66 +17,33 @@ body {
 /*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
 /* Layout */
 /*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
-.game-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 20px;
-}
 
 .sidebar {
-    width: 150px;
-    padding: 15px;
-    border: 2px solid #00FFFF;
+    border-color: #00FFFF;
     border-radius: 8px;
     background-color: rgba(13, 2, 33, 0.8);
     box-shadow: 0 0 10px #00FFFF;
 }
 
 .sidebar h2 {
-    margin-top: 0;
     color: #FF00FF;
     text-shadow: 0 0 5px #FF00FF;
 }
 
-.main-content {
-    text-align: center;
-}
 
 .game-controls {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 15px;
-    padding: 10px;
     background-color: rgba(13, 2, 33, 0.8);
     border: 2px solid #FF00FF;
     border-radius: 8px;
 }
 
-.control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.control-group label {
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.9em;
-}
 
 /*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
 /* Component Styles */
 /*-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
 .score {
-    font-size: 5em;
-    font-weight: bold;
     color: #00FFFF;
     text-shadow: 0 0 8px #00FFFF, 0 0 15px #FF00FF;
-    margin: 10px 0;
 }
 
 select,
@@ -86,7 +52,6 @@ select,
     color: #f0f0f0;
     border: 1px solid #FF00FF;
     border-radius: 4px;
-    padding: 5px;
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -95,8 +60,6 @@ select,
     background: transparent;
     border: 2px solid #00FFFF;
     color: #00FFFF;
-    padding: 8px 12px;
-    cursor: pointer;
 }
 
 .button-group .theme-btn:first-child {
@@ -118,20 +81,6 @@ button.styled-button {
     background: transparent;
     border: 2px solid #FF00FF;
     color: #FF00FF;
-    padding: 8px 12px;
-    cursor: pointer;
     border-radius: 5px;
     font-family: 'Orbitron', sans-serif;
-}
-
-/* Difficulty Slider */
-.styled-slider {
-    width: 120px;
-}
-
-.slider-labels {
-    display: flex;
-    justify-content: space-between;
-    width: 120px;
-    font-size: 0.7em;
 }
