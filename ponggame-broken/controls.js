@@ -79,12 +79,20 @@ function updatePlayerPaddlesVelocity() {
 }
 
 function resetGame() {
-    player1_keys.up = false;
-    player1_keys.down = false;
-    player2_keys.up = false;
-    player2_keys.down = false;
-    model.resetGame();
-    onTick();
+    if (model.state === STATE.STARTUP) {
+        // If game is "paused" at startup, clicking "Start" begins play.
+        model.state = STATE.PLAYING;
+        syncControlsWithModel(); // Update UI to "Restart" and disable options.
+        onTick(); // Start the game loop.
+    } else {
+        // If game is playing or over, clicking "Restart" resets the model.
+        player1_keys.up = false;
+        player1_keys.down = false;
+        player2_keys.up = false;
+        player2_keys.down = false;
+        model.resetGame(); // This sets state back to STARTUP and syncs UI.
+        onTick(); // This draws the initial "paused" screen.
+    }
 }
 
 function syncControlsWithModel() {
@@ -92,6 +100,17 @@ function syncControlsWithModel() {
     const winningScoreInput = document.getElementById("winning-score-selector");
     if (winningScoreInput) {
         winningScoreInput.value = model.winningScore;
+    }
+
+    // Sync game state for buttons and inputs
+    const resetButton = document.getElementById("reset-btn");
+    const isGameActive = model.state === STATE.PLAYING || model.state === STATE.GAMEOVER;
+
+    if (resetButton) {
+        resetButton.textContent = isGameActive ? 'Restart' : 'Start';
+    }
+    if (winningScoreInput) {
+        winningScoreInput.disabled = isGameActive;
     }
 
     // Sync player type selectors and toggle difficulty sliders
@@ -194,5 +213,4 @@ function set_winning_score(event) {
         score = 0;
     }
     model.winningScore = score;
-    resetGame();
 }

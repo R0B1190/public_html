@@ -11,9 +11,7 @@ window.addEventListener('load', () => {
 function onTick() {
     clearTimeout(model.intervalID); // Prevent multiple loops
 
-    if (model.state === STATE.STARTUP) {
-        model.state = STATE.PLAYING;
-    } else if (model.state === STATE.PLAYING) {
+    if (model.state === STATE.PLAYING) {
         model.state = play();
     }
 
