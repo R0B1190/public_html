@@ -3,6 +3,8 @@ const difficulty_selector = document.getElementById("difficulty");
 if (difficulty_selector) difficulty_selector.addEventListener("change", set_difficulty);
 const cpu_paddle_selector = document.getElementById("cpu_paddle_selector");
 if (cpu_paddle_selector) cpu_paddle_selector.addEventListener("change", set_cpu_paddle);
+const winning_score_selector = document.getElementById("winning_score_selector");
+if (winning_score_selector) winning_score_selector.addEventListener("change", set_winning_score);
 
 function keyDown(event) {
     const key = event.code;
@@ -57,4 +59,9 @@ function set_cpu_paddle(event) {
 
 function set_difficulty(event) {
     model.cpu_difficulty = parseInt(event.target.value);
+}
+
+function set_winning_score(event) {
+    model.winningScore = parseInt(event.target.value);
+    resetGame();
 }
