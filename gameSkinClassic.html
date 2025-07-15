@@ -13,8 +13,9 @@
     <link rel="stylesheet" type="text/css" href="tswnavbar.css" />
     <link rel="stylesheet" type="text/css" href="nav-styles.css" />
     <style>
-        /* Style for the active page link on gameSkinClassic.html */
-        #tswcssbuttons a[href="gameSkinClassic.html"] {
+        /* Style for the active "Game" menu link, preventing hover effect */
+        #tswcssbuttons a[href="projects.html"],
+        #tswcssbuttons a[href="projects.html"]:hover {
             background-color: #a25b09; /* A darker shade of the page background */
             color: white;
         }
@@ -222,6 +223,16 @@
             background-color: #f0f0f0;
             border: none;
             border-radius: 0;
+        }
+
+        .skin-button:hover {
+            background-color: #cccccc; /* Gray background on hover */
+        }
+
+        /* Style for the active classic skin button */
+        .skin-button[href="gameSkinClassic.html"] {
+            background-color: #a25b09; /* A darker shade of the page background */
+            color: white;
         }
 
         body.standalone-mode #game-container #game-viewport,
