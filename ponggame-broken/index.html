@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Pong Game</title>
     <link id="theme-style" rel="stylesheet" href="">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
     <script src="model.js" defer></script>
     <script src="ball.js" defer></script>
     <script src="paddle.js" defer></script>
@@ -27,20 +32,21 @@
                     <option value="cpu">CPU</option>
                 </select>
             </div>
+            <div id="cpu-options-left" class="cpu-options hidden">
+                <div class="control-group">
+                    <label for="cpu-difficulty-left">Difficulty</label>
+                    <input type="range" id="cpu-difficulty-left" min="0" max="2" value="0" class="styled-slider">
+                    <div class="slider-labels">
+                        <span>Easy</span><span>Medium</span><span>Hard</span>
+                    </div>
+                </div>
+            </div>
         </aside>
 
         <!-- Main Game Area -->
         <main class="main-content">
             <canvas id="gameboard" width="500" height="500"></canvas>
             <div class="game-controls">
-                <div class="control-group">
-                    <label for="difficulty-slider">Difficulty</label>
-                    <input type="range" id="difficulty-slider" min="0" max="2" value="0" class="styled-slider">
-                    <div class="slider-labels">
-                        <span>Easy</span><span>Medium</span><span>Hard</span>
-                    </div>
-                </div>
-
                 <div class="control-group">
                     <label>Theme</label>
                     <div id="theme-buttons" class="button-group">
@@ -72,9 +78,42 @@
                     <option value="cpu" selected>CPU</option>
                 </select>
             </div>
+            <div id="cpu-options-right" class="cpu-options">
+                <div class="control-group">
+                    <label for="cpu-difficulty-right">Difficulty</label>
+                    <input type="range" id="cpu-difficulty-right" min="0" max="2" value="0" class="styled-slider">
+                    <div class="slider-labels">
+                        <span>Easy</span><span>Medium</span><span>Hard</span>
+                    </div>
+                </div>
+            </div>
         </aside>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const playerTypeSelectors = document.querySelectorAll('.player-type-selector');
+
+            const toggleDifficultySlider = (side, selectedValue) => {
+                const optionsDiv = document.getElementById(`cpu-options-${side}`);
+                if (selectedValue === 'cpu') {
+                    optionsDiv.classList.remove('hidden');
+                } else {
+                    optionsDiv.classList.add('hidden');
+                }
+            };
+
+            playerTypeSelectors.forEach(selector => {
+                // Set initial state on load
+                toggleDifficultySlider(selector.dataset.side, selector.value);
+
+                // Add event listener for changes
+                selector.addEventListener('change', (e) => {
+                    toggleDifficultySlider(e.target.dataset.side, e.target.value);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -33,6 +33,7 @@ const PADDLE_HEIGHT = 100;
 const BALL_RADIUS = 12.5;
 const PADDLE_VELOCITY = 5;
 const PADDLE_FORCE = 1.1; // 110% of speed before
+const INITIAL_BALL_SPEED = 3;
 
 class Model {
     ball;
@@ -43,7 +44,8 @@ class Model {
     cpu_left = false; // Default to Player vs CPU
     cpu_right = true;
     winningScore = 10;
-    cpu_difficulty = CPU_DIFFICULTY.EASY;
+    cpu_difficulty_left = CPU_DIFFICULTY.EASY;
+    cpu_difficulty_right = CPU_DIFFICULTY.EASY;
     theme = THEMES.NEON; // Default theme
     state = STATE.STARTUP;
     intervalID = -1;
@@ -72,7 +74,18 @@ class Model {
     }
 
     resetBall() {
-        this.ball = new Ball(BOARD_WIDTH / 2, BOARD_HEIGHT / 2, 1, -1);
+        // Randomly decide to serve left or right.
+        const serveLeft = Math.random() < 0.5;
+
+        let angle = serveLeft ? -45 : -135; // 45 degrees for left, 135 degrees for right
+
+        // Convert angle to radians for trigonometric functions
+        const angleRad = angle * (Math.PI / 180);
+
+        const velx = INITIAL_BALL_SPEED * Math.cos(angleRad);
+        const vely = INITIAL_BALL_SPEED * Math.sin(angleRad);
+
+        this.ball = new Ball(BOARD_WIDTH / 2, BOARD_HEIGHT / 2, velx, vely);
     }
 
 }

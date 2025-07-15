@@ -1,8 +1,9 @@
 window.addEventListener("keydown", keyDown);
 
 // New event listeners for the updated controls
-const difficulty_slider = document.getElementById("difficulty-slider");
-if (difficulty_slider) difficulty_slider.addEventListener("input", set_difficulty);
+document.querySelectorAll('.difficulty-slider').forEach(slider => {
+    slider.addEventListener('input', set_difficulty);
+});
 
 document.querySelectorAll('.player-type-selector').forEach(selector => {
     selector.addEventListener('change', set_player_type);
@@ -74,10 +75,23 @@ function set_player_type(event) {
     } else if (side === 'right') {
         model.cpu_right = is_cpu;
     }
+
+    // Show/hide the difficulty slider for this player
+    const sliderContainer = document.getElementById(`difficulty-${side}-container`);
+    if (sliderContainer) {
+        sliderContainer.style.display = is_cpu ? 'block' : 'none';
+    }
 }
 
 function set_difficulty(event) {
-    model.cpu_difficulty = parseInt(event.target.value);
+    const side = event.target.dataset.side;
+    const difficulty = parseInt(event.target.value);
+
+    if (side === 'left') {
+        model.cpu_difficulty_left = difficulty;
+    } else if (side === 'right') {
+        model.cpu_difficulty_right = difficulty;
+    }
 }
 
 function handleThemeButtonClick(event) {
