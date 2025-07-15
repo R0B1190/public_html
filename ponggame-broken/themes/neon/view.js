@@ -121,7 +121,7 @@ function draw_victory_screen(model) {
     // "Press End to Restart" Text
     ctx.fillStyle = "white";
     ctx.font = "24px 'Orbitron', sans-serif";
-    ctx.fillText("Press 'End' to play again", canvas.width / 2, canvas.height / 2 + 40);
+    ctx.fillText("Press 'Restart' to play again", canvas.width / 2, canvas.height / 2 + 40);
 
     ctx.restore();
 }

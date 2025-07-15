@@ -38,11 +38,6 @@ function keyDown(event) {
         case "ArrowDown":
             player2_keys.down = true;
             break;
-        case "End":
-            if (model.state === STATE.GAMEOVER) {
-                resetGame();
-            }
-            break;
     }
 }
 

@@ -97,7 +97,6 @@ select,
     color: #00FFFF;
     padding: 8px 12px;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
 }
 
 .button-group .theme-btn:first-child {
@@ -123,7 +122,6 @@ button.styled-button {
     cursor: pointer;
     border-radius: 5px;
     font-family: 'Orbitron', sans-serif;
-    transition: all 0.2s ease-in-out;
 }
 
 /* Difficulty Slider */

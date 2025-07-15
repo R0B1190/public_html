@@ -1,7 +1,4 @@
 
-
-3. various controll btns fix
-
 4. neumorphic theme
 
 
