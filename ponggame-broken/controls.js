@@ -86,6 +86,7 @@ function resetGame() {
         player2_keys.up = false;
         player2_keys.down = false;
         model.resetGame(); // This sets state back to STARTUP and syncs UI.
+        updateScore(model); // Explicitly update the score display to 0.
         onTick(); // This draws the initial "paused" screen.
     }
 }
