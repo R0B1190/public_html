@@ -108,18 +108,23 @@ class Paddle {
                 ball.posx = paddleRect.left - BALL_RADIUS;
             }
 
-            // Reverse horizontal velocity and apply paddle force
+            // --- CHAOTIC BOUNCE LOGIC ---
+            // Reverse horizontal velocity
             ball.velx *= -1;
-            ball.velx *= PADDLE_FORCE;
 
-            // Add "spin" to the ball based on where it hit the paddle
-            const MAX_SPIN_VELOCITY = 7;
-            const intersectRatio = (ball.posy - (this.posy + this.height / 2)) / (this.height / 2);
+            // Add a random factor to the horizontal speed to make it chaotic.
+            // PADDLE_FORCE is 1.1. We'll add a random value up to 0.4 on top.
+            const randomForce = PADDLE_FORCE + (Math.random() * 0.4);
+            ball.velx *= randomForce;
 
-            // Clamp the ratio to [-1, 1] to prevent extreme spin from corner hits
-            const clampedRatio = Math.max(-1, Math.min(1, intersectRatio));
-            ball.vely = clampedRatio * MAX_SPIN_VELOCITY;
+            // Set a new random vertical velocity for a chaotic bounce.
+            // This creates a random up/down direction and speed.
+            const MAX_VERTICAL_CHAOS = 7;
+            ball.vely = (Math.random() - 0.5) * 2 * MAX_VERTICAL_CHAOS;
 
+            // Clamp the horizontal velocity to prevent it from getting uncontrollably fast
+            const MAX_VELOCITY_X = 15;
+            ball.velx = Math.max(-MAX_VELOCITY_X, Math.min(MAX_VELOCITY_X, ball.velx));
             return this.side; // Return the side of the paddle that was hit
         }
 
