@@ -1,6 +1,6 @@
 const SIDE = { NONE: 0, LEFT: 1, RIGHT: 2 };
 const STATE = { STARTUP: 0, PLAYING: 1, GAMEOVER: 2 };
-const CPU_DIFFICULTY = { EASY: 0, MEDIUM: 1, HARD: 2 };
+const CPU_DIFFICULTY = { EASY: 0, MEDIUM: 1, HARD: 2, PERFECT: 3 };
 const THEMES = {
     NEON: {
         name: 'NEON',
