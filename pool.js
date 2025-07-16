@@ -6,13 +6,15 @@ const player2StatusEl = document.getElementById('player2-status');
 
 // --- Constants ---
 const FRICTION = 0.985;
-const BALL_RADIUS = 11; // Slightly smaller to fit them all
+const BALL_RADIUS = 15; // Slightly smaller to fit them all
 const MIN_VELOCITY = 0.05;
-const POCKET_RADIUS = 18;
+const POCKET_RADIUS = 24;
+const MAX_SHOT_DISTANCE = 350; // Max drag distance for 100% power
 
 // --- Game State ---
 let balls = [];
 let pockets = [];
+let pocketedThisTurn = [];
 let cueBall;
 let mouse = { x: 0, y: 0 };
 let shotStart = null;
@@ -20,6 +22,8 @@ let currentPlayer = 1;
 let shotTakenThisTurn = false;
 let playerAssignments = { 1: null, 2: null }; // null, 'solid', or 'stripe'
 let gameOver = false;
+let eightBallMode = false; // Is the player shooting for the 8-ball?
+let declaredPocket = null; // index of the pocket declared for the 8-ball
 
 // --- Ball Class ---
 class Ball {
@@ -97,12 +101,94 @@ class Ball {
 
 // --- Drawing Functions ---
 function drawPockets() {
-    ctx.fillStyle = 'black';
-    pockets.forEach(p => {
+    pockets.forEach((p, i) => {
+        ctx.fillStyle = 'black';
         ctx.beginPath();
         ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
         ctx.fill();
+
+        // Highlight the declared pocket in yellow when in 8-ball mode
+        if (eightBallMode && i === declaredPocket) {
+            ctx.strokeStyle = '#f9c74f'; // Yellow/gold
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
     });
+}
+
+function drawCue() {
+    if (!shotStart) return;
+
+    const CUE_LENGTH = 400;
+    const CUE_TIP_WIDTH = 5;
+    const CUE_BUTT_WIDTH = 11;
+    const PULLBACK_FACTOR = 0.25;
+    const MAX_PULLBACK = 60;
+
+    const dx = mouse.x - cueBall.x;
+    const dy = mouse.y - cueBall.y;
+    const angle = Math.atan2(dy, dx);
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const pullback = Math.min(distance * PULLBACK_FACTOR, MAX_PULLBACK);
+
+    ctx.save();
+    ctx.translate(cueBall.x, cueBall.y);
+    ctx.rotate(angle);
+
+    const cueTipX = -(BALL_RADIUS + pullback);
+    const cueButtX = cueTipX - CUE_LENGTH;
+
+    // Draw main shaft (light wood)
+    ctx.beginPath();
+    ctx.moveTo(cueTipX, -CUE_TIP_WIDTH / 2);
+    ctx.lineTo(cueButtX, -CUE_BUTT_WIDTH / 2);
+    ctx.lineTo(cueButtX, CUE_BUTT_WIDTH / 2);
+    ctx.lineTo(cueTipX, CUE_TIP_WIDTH / 2);
+    ctx.closePath();
+    ctx.fillStyle = '#d2b48c'; // Tan
+    ctx.fill();
+
+    // Draw grip (darker part)
+    ctx.fillStyle = '#654321'; // Dark brown
+    ctx.fillRect(cueButtX, -CUE_BUTT_WIDTH / 2, CUE_LENGTH * 0.4, CUE_BUTT_WIDTH);
+
+    ctx.restore();
+}
+
+function drawPowerBar() {
+    if (!shotStart) return;
+
+    const dx = mouse.x - cueBall.x;
+    const dy = mouse.y - cueBall.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const powerPercent = Math.min(distance / MAX_SHOT_DISTANCE, 1);
+
+    const barX = 30;
+    const barY = canvas.height / 2 - 125;
+    const barWidth = 25;
+    const barHeight = 250;
+
+    // Draw text label and percentage
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Power', barX + barWidth / 2, barY - 15);
+    ctx.font = '14px Arial';
+    ctx.fillText(`${Math.round(powerPercent * 100)}%`, barX + barWidth / 2, barY + barHeight + 20);
+
+    // Draw bar background/border
+    ctx.strokeStyle = '#CCC';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+    // Draw power fill
+    const fillHeight = barHeight * powerPercent;
+    // Color from green (low power) to yellow to red (high power)
+    const hue = (1 - powerPercent) * 120; // HSL: 120 is green, 60 is yellow, 0 is red.
+    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+    ctx.fillRect(barX, barY + barHeight - fillHeight, barWidth, fillHeight);
 }
 
 // --- Game Logic ---
@@ -112,6 +198,9 @@ function initGame() {
     currentPlayer = 1;
     shotTakenThisTurn = false;
     playerAssignments = { 1: null, 2: null };
+    pocketedThisTurn = [];
+    eightBallMode = false;
+    declaredPocket = null;
 
     updateStatusDisplay();
 
@@ -226,6 +315,21 @@ function handleCollisions() {
     }
 }
 
+function handlePocketing() {
+    // Check for balls falling into pockets in real-time
+    for (let i = balls.length - 1; i >= 0; i--) {
+        for (const pocket of pockets) {
+            const dist = Math.sqrt((balls[i].x - pocket.x) ** 2 + (balls[i].y - pocket.y) ** 2);
+            if (dist < POCKET_RADIUS) {
+                const pocketedBall = balls.splice(i, 1)[0];
+                pocketedThisTurn.push(pocketedBall);
+                // Ball is pocketed, stop checking against other pockets and move to next ball
+                break; 
+            }
+        }
+    }
+}
+
 function ballsAreMoving() {
     return balls.some(ball => ball.vx !== 0 || ball.vy !== 0);
 }
@@ -248,7 +352,13 @@ function updateStatusDisplay() {
     player1StatusEl.textContent = getStatusText(1);
     player2StatusEl.textContent = getStatusText(2);
     
-    turnIndicatorEl.textContent = `Player ${currentPlayer}'s Turn`;
+    if (eightBallMode && declaredPocket === null) {
+        turnIndicatorEl.textContent = `Player ${currentPlayer}: Declare a pocket for the 8-ball!`;
+    } else if (eightBallMode && declaredPocket !== null) {
+        turnIndicatorEl.textContent = `Player ${currentPlayer}'s Turn (Pocket ${declaredPocket + 1} called)`;
+    } else {
+        turnIndicatorEl.textContent = `Player ${currentPlayer}'s Turn`;
+    }
 
     if (currentPlayer === 1) {
         player1StatusEl.style.fontWeight = 'bold';
@@ -264,60 +374,84 @@ function endTurnLogic() {
         return;
     }
 
-    const pocketedThisTurn = [];
+    // 1. Process pocketed balls and identify fouls/8-ball pocketing
     let foul = false;
+    const objectBallsPocketed = [];
+    let eightBallPocketedInfo = null; // Will store { ball, index }
 
-    // Check for pocketed balls
-    for (let i = balls.length - 1; i >= 0; i--) {
-        for (const pocket of pockets) {
-            const dist = Math.sqrt((balls[i].x - pocket.x) ** 2 + (balls[i].y - pocket.y) ** 2);
-            if (dist < POCKET_RADIUS) {
-                const pocketedBall = balls.splice(i, 1)[0];
-                if (pocketedBall.type === 'cue') {
-                    foul = true;
-                    setTimeout(() => { // Reset cue ball after a moment
-                        cueBall.x = canvas.width / 4;
-                        cueBall.y = canvas.height / 2;
-                        cueBall.vx = 0; cueBall.vy = 0;
-                        balls.push(cueBall);
-                    }, 500);
-                } else {
-                    pocketedThisTurn.push(pocketedBall);
-                }
-                break; // Ball is pocketed, move to next ball
-            }
+    // Separate the cue ball from object balls, and handle fouls/8-ball pocketing.
+    pocketedThisTurn.forEach(pocketedBall => {
+        if (pocketedBall.type === 'cue') {
+            foul = true;
+            setTimeout(() => { // Reset cue ball after a moment
+                cueBall.x = canvas.width / 4;
+                cueBall.y = canvas.height / 2;
+                cueBall.vx = 0;
+                cueBall.vy = 0;
+                balls.push(cueBall);
+            }, 500);
+        } else if (pocketedBall.type === '8ball') {
+            // Find which pocket the 8-ball went into
+            let pocketIndex = -1;
+            let min_dist = Infinity;
+            pockets.forEach((p, i) => {
+                const dist = Math.sqrt((pocketedBall.x - p.x)**2 + (pocketedBall.y - p.y)**2);
+                if (dist < min_dist) { min_dist = dist; pocketIndex = i; }
+            });
+            eightBallPocketedInfo = { ball: pocketedBall, index: pocketIndex };
+        } else {
+            objectBallsPocketed.push(pocketedBall);
         }
+    });
+    
+    // 2. Handle immediate game-over condition from 8-ball pocketing
+    if (eightBallPocketedInfo) {
+        gameOver = true;
+        const playerWasOn8Ball = eightBallMode;
+        if (!foul && playerWasOn8Ball && eightBallPocketedInfo.index === declaredPocket) {
+            turnIndicatorEl.textContent = `Player ${currentPlayer} WINS!`;
+        } else {
+            let reason = "Illegal 8-ball pot.";
+            if (foul) reason = "Foul on the 8-ball.";
+            else if (!playerWasOn8Ball) reason = "Sunk 8-ball too early.";
+            else if (eightBallPocketedInfo.index !== declaredPocket) reason = "Sunk 8-ball in wrong pocket.";
+            turnIndicatorEl.textContent = `Player ${currentPlayer} loses! ${reason}`;
+        }
+        setTimeout(initGame, 3000);
+        return;
     }
 
+    // 3. Determine if a legal shot was made with object balls
     let legalPocket = false;
-    for (const pocketed of pocketedThisTurn) {
-        if (pocketed.type === '8ball') {
-            gameOver = true;
-            const remaining = balls.filter(b => b.type === playerAssignments[currentPlayer]).length;
-            const assignmentsMade = playerAssignments[1] !== null;
-            if (!foul && assignmentsMade && remaining === 0) {
-                alert(`Player ${currentPlayer} WINS!`);
-            } else {
-                alert(`Player ${currentPlayer} loses! Illegal 8-ball pot.`);
-            }
-            setTimeout(initGame, 2000); // Restart after a delay
-            return;
-        } else if (playerAssignments[1] === null) { // Assigning groups
+    for (const pocketed of objectBallsPocketed) {
+        if (playerAssignments[1] === null) { // Assigning groups
             playerAssignments[currentPlayer] = pocketed.type;
             playerAssignments[currentPlayer === 1 ? 2 : 1] = (pocketed.type === 'solid' ? 'stripe' : 'solid');
             legalPocket = true;
-        } else if (pocketed.type === playerAssignments[currentPlayer]) {
-            legalPocket = true; // Pocketed their own ball type
+        } else if (pocketed.type === playerAssignments[currentPlayer]) { // Pocketed their own ball type
+            legalPocket = true;
         }
     }
 
-    if (foul || !legalPocket) {
-        currentPlayer = currentPlayer === 1 ? 2 : 1; // Switch player
+    // 4. Determine whose turn it is next and update 8-ball mode
+    let switchPlayer = foul || !legalPocket;
+    
+    if (switchPlayer) {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
     }
 
-    // Update the UI with new assignments or player turn
+    // Check if the player for the *next* turn is on the 8-ball.
+    const remainingPlayerBalls = balls.filter(b => b.type === playerAssignments[currentPlayer]).length;
+    if (playerAssignments[currentPlayer] !== null && remainingPlayerBalls === 0) {
+        eightBallMode = true;
+        declaredPocket = null; // Must declare pocket for their turn
+    } else {
+        eightBallMode = false;
+    }
+
+    // 5. Cleanup for next turn
+    pocketedThisTurn = [];
     updateStatusDisplay();
-    // Turn processing is complete, reset the flag to allow the next shot
     shotTakenThisTurn = false;
 }
 
@@ -339,41 +473,83 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPockets();
+    drawPowerBar();
     
     balls.forEach(ball => ball.update());
     handleCollisions();
+    handlePocketing();
     endTurnLogic();
-    balls.forEach(ball => ball.draw());
 
+    // Drawing order is important for layering
     drawAimingLine();
+    drawCue();
+    balls.forEach(ball => ball.draw());
 
     requestAnimationFrame(gameLoop);
 }
 
 // --- Event Listeners ---
-canvas.addEventListener('mousemove', e => {
+// A function to handle mouse movement, updating coordinates relative to the canvas.
+function handleMouseMove(e) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
-});
+}
 
-canvas.addEventListener('mousedown', e => {
-    // Can only start aiming if balls are still and it's a valid time to shoot.
-    if (!ballsAreMoving() && !shotTakenThisTurn) {
-        shotStart = { x: cueBall.x, y: cueBall.y };
-    }
-});
-
-canvas.addEventListener('mouseup', e => {
+// A function to handle releasing the mouse, which takes the shot.
+function handleMouseUp(e) {
     if (shotStart && !shotTakenThisTurn) {
         const dx = mouse.x - shotStart.x;
         const dy = mouse.y - shotStart.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Cap the shot power by capping the effective distance
+        const effectiveDistance = Math.min(distance, MAX_SHOT_DISTANCE);
+        const angle = Math.atan2(dy, dx);
         
-        cueBall.vx = -dx * 0.1; // Power is proportional to drag distance, direction is opposite
-        cueBall.vy = -dy * 0.1; // Direction is opposite of drag
+        cueBall.vx = Math.cos(angle) * (effectiveDistance * 0.1);
+        cueBall.vy = Math.sin(angle) * (effectiveDistance * 0.1);
 
         shotStart = null;
         shotTakenThisTurn = true;
+    }
+    // Clean up the window-wide listeners and restore the canvas-specific one
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mousemove', handleMouseMove);
+}
+
+// Initially, just track mouse movement over the canvas.
+canvas.addEventListener('mousemove', handleMouseMove);
+
+canvas.addEventListener('mousedown', e => {
+    if (gameOver) return;
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // If it's the player's turn for the 8-ball, their click declares a pocket.
+    if (eightBallMode && !ballsAreMoving() && !shotTakenThisTurn) {
+        for (let i = 0; i < pockets.length; i++) {
+            const dist = Math.sqrt((clickX - pockets[i].x)**2 + (clickY - pockets[i].y)**2);
+            if (dist < POCKET_RADIUS) {
+                declaredPocket = i;
+                updateStatusDisplay();
+                // A pocket has been selected, so we don't want to start a shot.
+                return;
+            }
+        }
+    }
+
+    // Can only start aiming if balls are still, it's a valid time to shoot,
+    // and if on the 8-ball, a pocket has been declared.
+    if (!ballsAreMoving() && !shotTakenThisTurn && (!eightBallMode || declaredPocket !== null)) {
+        shotStart = { x: cueBall.x, y: cueBall.y };
+        
+        // Swap to window-wide listeners for the duration of the drag
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
     }
 });
 

@@ -5,8 +5,8 @@ window.addEventListener("keydown", keyDown);
 window.addEventListener("keyup", keyUp);
 
 // New event listeners for the updated controls
-document.querySelectorAll('.difficulty-slider').forEach(slider => {
-    slider.addEventListener('input', set_difficulty);
+document.querySelectorAll('.difficulty-selector').forEach(selector => {
+    selector.addEventListener('change', set_difficulty);
 });
 
 document.querySelectorAll('.player-type-selector').forEach(selector => {
@@ -122,12 +122,12 @@ function syncControlsWithModel() {
     });
 
     // Sync difficulty sliders
-    document.querySelectorAll('.difficulty-slider').forEach(slider => {
-        const side = slider.dataset.side;
+    document.querySelectorAll('.difficulty-selector').forEach(selector => {
+        const side = selector.dataset.side;
         if (side === 'left') {
-            slider.value = model.cpu_difficulty_left;
+            selector.value = model.cpu_difficulty_left;
         } else if (side === 'right') {
-            slider.value = model.cpu_difficulty_right;
+            selector.value = model.cpu_difficulty_right;
         }
     });
 
