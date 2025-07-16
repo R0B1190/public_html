@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Character encoding for proper text display -->
+    <meta charset="UTF-8">
+    
+    <!-- Responsive design meta tag for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page title displayed in browser tab -->
+    <title>AI Cook - Recipe Generator</title>
+    
+    <!-- Link to external CSS stylesheet for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container for the entire application -->
+    <div class="container">
+        <!-- Header section with app title and description -->
+        <header>
+            <!-- App title with cooking emoji for visual appeal -->
+            <h1>🍳 AI Cook</h1>
+            <!-- Brief description of the app's purpose -->
+            <p>Turn your ingredients into delicious recipes with AI</p>
+        </header>
+
+        <!-- Main content area containing all interactive elements -->
+        <main>
+            <!-- Input section containing all user input forms -->
+            <div class="input-section">
+                
+                <!-- API Key input section - User must provide their Gemini API key -->
+                <div class="api-key-section">
+                    <label for="apiKey">Gemini API Key:</label>
+                    <!-- Password input to hide the API key for security -->
+                    <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+                    <!-- Button to save the API key to localStorage -->
+                    <button id="saveApiKey">Save</button>
+                </div>
+
+                <!-- Ingredients input section - Main input for recipe generation -->
+                <div class="ingredients-section">
+                    <label for="ingredients">Available Ingredients:</label>
+                    <!-- Large text area for users to list their ingredients -->
+                    <textarea id="ingredients" placeholder="Enter your ingredients separated by commas (e.g., chicken, onions, tomatoes, rice)"></textarea>
+                </div>
+
+                <!-- Dietary preferences section - Optional filter for special diets -->
+                <div class="preferences-section">
+                    <label for="dietary">Dietary Preferences (optional):</label>
+                    <!-- Dropdown menu for dietary restrictions -->
+                    <select id="dietary">
+                        <option value="">None</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="gluten-free">Gluten-Free</option>
+                        <option value="keto">Keto</option>
+                        <option value="low-carb">Low-Carb</option>
+                    </select>
+                </div>
+
+                <!-- Cuisine type section - Optional filter for cooking style -->
+                <div class="cuisine-section">
+                    <label for="cuisine">Cuisine Type (optional):</label>
+                    <!-- Dropdown menu for cuisine preferences -->
+                    <select id="cuisine">
+                        <option value="">Any</option>
+                        <option value="italian">Italian</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="mexican">Mexican</option>
+                        <option value="indian">Indian</option>
+                        <option value="american">American</option>
+                        <option value="french">French</option>
+                        <option value="japanese">Japanese</option>
+                        <option value="korean">Korean</option>
+                        <option value="thai">Thai</option>
+                        <option value="vietnamese">Vietnamese</option>
+                    </select>
+                </div>
+
+                <!-- Main action button to trigger recipe generation -->
+                <button id="generateRecipe" class="generate-btn">Generate Recipe</button>
+            </div>
+
+            <!-- Loading section - Shows spinner while AI generates recipe -->
+            <div class="loading" id="loading">
+                <!-- Animated spinner element -->
+                <div class="spinner"></div>
+                <!-- Loading message to inform user of progress -->
+                <p>Cooking up something delicious...</p>
+            </div>
+
+            <!-- Recipe display section - Hidden by default, shown when recipe is generated -->
+            <div class="recipe-section" id="recipeSection">
+                <!-- Section header -->
+                <h2>Your Recipe</h2>
+                <!-- Container for the formatted recipe content -->
+                <div id="recipeContent"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript file containing all application logic -->
+    <!-- Loaded at the end of body for better performance -->
+    <script src="script.js"></script>
+</body>
+</html>

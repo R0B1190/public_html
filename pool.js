@@ -36,39 +36,114 @@ class Ball {
         this.color = color;
         this.number = number;
         this.type = type; // 'solid', 'stripe', '8ball', 'cue', 'pocket'
+        // For pseudo-3D rotation
+        this.rotation = 0; // The total rotation angle
+        // The axis of rotation (a 2D vector perpendicular to velocity)
+        this.axisX = 0;
+        this.axisY = 1;
     }
 
     draw() {
+        ctx.save(); // Save the initial state
+
+        // 1. Draw the base sphere color (solids, stripes, 8-ball, cue)
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
 
-        // Draw stripe for striped balls
-        if (this.type === 'stripe') {
+        // Solids are their color, stripes and cue are white, 8ball is black.
+        if (this.type === 'solid') {
+            ctx.fillStyle = this.color;
+        } else if (this.type === '8ball') {
+            ctx.fillStyle = 'black';
+        } else { // 'stripe' or 'cue'
             ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
-            ctx.fill();
         }
-
-        // Draw number
-        if (this.number) {
-            ctx.fillStyle = (this.type === 'stripe' || this.number === 8) ? 'black' : 'white';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(this.number.toString(), this.x, this.y);
-        }
-
-        // Add a highlight for a 3D effect
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.beginPath();
-        ctx.arc(this.x - this.radius / 3, this.y - this.radius / 3, this.radius / 4, 0, Math.PI * 2);
         ctx.fill();
+
+        // 2. Draw rotating features (only for non-cue balls)
+        // This part uses matrix transforms to simulate 3D rotation.
+        const cosRot = Math.cos(this.rotation);
+        const sinRot = Math.sin(this.rotation);
+
+        if (this.type === 'stripe') {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(Math.atan2(this.axisY, this.axisX)); // Align with rotation axis
+            
+            const stripeWidth = this.radius * 0.8;
+            ctx.beginPath();
+            for (let i = -this.radius; i <= this.radius; i += 2) {
+                const y = i;
+                const x = Math.sqrt(this.radius * this.radius - y * y);
+                const angle = Math.atan2(y, x);
+                const rotatedY = y * cosRot;
+                
+                if (Math.abs(rotatedY) < stripeWidth) {
+                    ctx.moveTo(-x, y);
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Draw the number only if it's on the visible side of the ball.
+        if (this.number) {
+            const z = -sinRot; // -1 (back) to 1 (front)
+            if (z > -0.1) { // Only draw if not on the back side
+                ctx.save();
+                ctx.translate(this.x + this.axisY * this.radius * cosRot, this.y - this.axisX * this.radius * cosRot);
+
+                const scale = (z + 1) / 2 * 0.8 + 0.2; // Scale based on how close to front
+                ctx.scale(scale, scale);
+
+                ctx.fillStyle = this.color;
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius * 0.55, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.font = 'bold 14px Arial'; // Slightly larger for clarity
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.number.toString(), 0, 1);
+                ctx.restore();
+            }
+        }
+
+        // 3. Add a non-rotating highlight for 3D effect
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); // Redefine path for gradient
+        const gradient = ctx.createRadialGradient(
+            this.x - this.radius / 2.5, this.y - this.radius / 2.5, 1,
+            this.x, this.y, this.radius
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.restore(); // Restore to initial state
     }
 
     update() {
+        // Calculate speed for rotation
+        const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        if (speed > MIN_VELOCITY) {
+            // Rotation is proportional to how far the ball traveled
+            this.rotation += speed / this.radius;
+
+            // The axis of rotation is perpendicular to the velocity vector.
+            // We normalize the velocity vector to get the axis.
+            if (speed > 0) {
+                this.axisX = -this.vy / speed;
+                this.axisY = this.vx / speed;
+            }
+        }
+
         // Apply friction
         this.vx *= FRICTION;
         this.vy *= FRICTION;
@@ -125,8 +200,9 @@ function drawCue() {
     const PULLBACK_FACTOR = 0.25;
     const MAX_PULLBACK = 60;
 
-    const dx = mouse.x - cueBall.x;
-    const dy = mouse.y - cueBall.y;
+    // Point the cue from the mouse towards the ball
+    const dx = cueBall.x - mouse.x;
+    const dy = cueBall.y - mouse.y;
     const angle = Math.atan2(dy, dx);
     const distance = Math.sqrt(dx * dx + dy * dy);
 
@@ -159,8 +235,8 @@ function drawCue() {
 function drawPowerBar() {
     if (!shotStart) return;
 
-    const dx = mouse.x - cueBall.x;
-    const dy = mouse.y - cueBall.y;
+    const dx = cueBall.x - mouse.x;
+    const dy = cueBall.y - mouse.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     const powerPercent = Math.min(distance / MAX_SHOT_DISTANCE, 1);
@@ -458,9 +534,21 @@ function endTurnLogic() {
 function drawAimingLine() {
     // Only show aiming line if it's the current player's turn and they haven't shot
     if (shotStart && !shotTakenThisTurn) {
+        // The line should represent the shot path, which is from the cue ball
+        // in the direction opposite of where the mouse is.
+        const dx = cueBall.x - mouse.x;
+        const dy = cueBall.y - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance === 0) return; // Don't draw if mouse is on the ball
+
+        // Scale the line's length to match the shot power.
+        // The length grows with distance but is capped at 100% power (MAX_SHOT_DISTANCE).
+        const scale = Math.min(1.0, MAX_SHOT_DISTANCE / distance);
+
         ctx.beginPath();
-        ctx.moveTo(shotStart.x, shotStart.y);
-        ctx.lineTo(mouse.x, mouse.y);
+        ctx.moveTo(cueBall.x, cueBall.y);
+        ctx.lineTo(cueBall.x + dx * scale, cueBall.y + dy * scale);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.lineWidth = 3;
         ctx.stroke();
@@ -499,8 +587,9 @@ function handleMouseMove(e) {
 // A function to handle releasing the mouse, which takes the shot.
 function handleMouseUp(e) {
     if (shotStart && !shotTakenThisTurn) {
-        const dx = mouse.x - shotStart.x;
-        const dy = mouse.y - shotStart.y;
+        // The shot direction is from the mouse *towards* the ball
+        const dx = shotStart.x - mouse.x;
+        const dy = shotStart.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         // Cap the shot power by capping the effective distance
