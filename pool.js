@@ -24,6 +24,7 @@ let playerAssignments = { 1: null, 2: null }; // null, 'solid', or 'stripe'
 let gameOver = false;
 let eightBallMode = false; // Is the player shooting for the 8-ball?
 let declaredPocket = null; // index of the pocket declared for the 8-ball
+let isBallInHand = false; // For ball-in-hand placement after a foul
 
 // --- Ball Class ---
 class Ball {
@@ -68,24 +69,23 @@ class Ball {
         if (this.type === 'stripe') {
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.rotate(Math.atan2(this.axisY, this.axisX)); // Align with rotation axis
+            // Align with the stripe's equator, which is perpendicular to the rotation axis.
+            // The original code aligned with the axis, drawing the stripe around the poles.
+            ctx.rotate(Math.atan2(-this.axisX, this.axisY));
             
-            const stripeWidth = this.radius * 0.8;
+            const stripeHalfWidth = this.radius * 0.8;
+
+            // The old drawing logic was complex and had visual bugs. This simpler method
+            // clips the drawing area to a rectangle (the stripe) and then fills a circle
+            // (the ball) inside it. This correctly draws the colored stripe over the
+            // base white color of the ball.
             ctx.beginPath();
-            for (let i = -this.radius; i <= this.radius; i += 2) {
-                const y = i;
-                const x = Math.sqrt(this.radius * this.radius - y * y);
-                const angle = Math.atan2(y, x);
-                const rotatedY = y * cosRot;
-                
-                if (Math.abs(rotatedY) < stripeWidth) {
-                    ctx.moveTo(-x, y);
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.rect(-this.radius, -stripeHalfWidth, this.radius * 2, stripeHalfWidth * 2);
+            ctx.clip();
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
             ctx.restore();
         }
 
@@ -114,16 +114,28 @@ class Ball {
             }
         }
 
-        // 3. Add a non-rotating highlight for 3D effect
+        // 3. Add non-rotating highlight and shadow for 3D effect
+        // The highlight is a white glare on the top-left.
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); // Redefine path for gradient
-        const gradient = ctx.createRadialGradient(
+        const highlight = ctx.createRadialGradient(
             this.x - this.radius / 2.5, this.y - this.radius / 2.5, 1,
             this.x, this.y, this.radius
         );
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-        ctx.fillStyle = gradient;
+        highlight.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+        highlight.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = highlight;
+        ctx.fill();
+
+        // The shadow is a subtle dark area on the bottom-right. This makes the
+        // white cue ball appear 3D and enhances the other balls as well.
+        const shadow = ctx.createRadialGradient(
+            this.x + this.radius / 2.5, this.y + this.radius / 2.5, 1,
+            this.x, this.y, this.radius
+        );
+        shadow.addColorStop(0, 'rgba(0,0,0,0.25)');
+        shadow.addColorStop(0.7, 'rgba(0,0,0,0)');
+        ctx.fillStyle = shadow;
         ctx.fill();
 
         ctx.restore(); // Restore to initial state
@@ -428,7 +440,9 @@ function updateStatusDisplay() {
     player1StatusEl.textContent = getStatusText(1);
     player2StatusEl.textContent = getStatusText(2);
     
-    if (eightBallMode && declaredPocket === null) {
+    if (isBallInHand) {
+        turnIndicatorEl.textContent = `Player ${currentPlayer}: Ball in Hand`;
+    } else if (eightBallMode && declaredPocket === null) {
         turnIndicatorEl.textContent = `Player ${currentPlayer}: Declare a pocket for the 8-ball!`;
     } else if (eightBallMode && declaredPocket !== null) {
         turnIndicatorEl.textContent = `Player ${currentPlayer}'s Turn (Pocket ${declaredPocket + 1} called)`;
@@ -459,13 +473,8 @@ function endTurnLogic() {
     pocketedThisTurn.forEach(pocketedBall => {
         if (pocketedBall.type === 'cue') {
             foul = true;
-            setTimeout(() => { // Reset cue ball after a moment
-                cueBall.x = canvas.width / 4;
-                cueBall.y = canvas.height / 2;
-                cueBall.vx = 0;
-                cueBall.vy = 0;
-                balls.push(cueBall);
-            }, 500);
+            // Cue ball is removed by handlePocketing. The next player gets ball-in-hand.
+            // The cueBall object still exists, but is not in the `balls` array.
         } else if (pocketedBall.type === '8ball') {
             // Find which pocket the 8-ball went into
             let pocketIndex = -1;
@@ -513,6 +522,9 @@ function endTurnLogic() {
     let switchPlayer = foul || !legalPocket;
     
     if (switchPlayer) {
+        if (foul) {
+            isBallInHand = true;
+        }
         currentPlayer = currentPlayer === 1 ? 2 : 1;
     }
 
@@ -560,6 +572,13 @@ function gameLoop() {
     if (gameOver) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // If ball in hand, cue ball follows mouse for placement.
+    // It is not in the `balls` array yet, so it won't be updated/collided.
+    if (isBallInHand) {
+        cueBall.x = mouse.x;
+        cueBall.y = mouse.y;
+    }
     drawPockets();
     drawPowerBar();
     
@@ -573,6 +592,44 @@ function gameLoop() {
     drawCue();
     balls.forEach(ball => ball.draw());
 
+    if (isBallInHand) {
+        // Draw cue ball at mouse position with visual feedback for valid placement.
+        ctx.save();
+        let invalidPlacement = false;
+        // Check collision with other balls
+        for (const ball of balls) {
+            const dist = Math.sqrt((cueBall.x - ball.x)**2 + (cueBall.y - ball.y)**2);
+            if (dist < cueBall.radius + ball.radius) {
+                invalidPlacement = true;
+                break;
+            }
+        }
+        // Check collision with table edges
+        if (!invalidPlacement) {
+            if (cueBall.x < cueBall.radius || cueBall.x > canvas.width - cueBall.radius ||
+                cueBall.y < cueBall.radius || cueBall.y > canvas.height - cueBall.radius) {
+                invalidPlacement = true;
+            }
+        }
+        
+        // Check collision with pockets
+        if (!invalidPlacement) {
+            for (const pocket of pockets) {
+                const dist = Math.sqrt((cueBall.x - pocket.x)**2 + (cueBall.y - pocket.y)**2);
+                // Prevent placement if the edge of the ball would be inside the pocket's radius
+                if (dist < POCKET_RADIUS + cueBall.radius) {
+                    invalidPlacement = true;
+                    break;
+                }
+            }
+        }
+        
+        if (invalidPlacement) {
+            ctx.globalAlpha = 0.5; // Make it look like a ghost
+        }
+        cueBall.draw();
+        ctx.restore();
+    }
     requestAnimationFrame(gameLoop);
 }
 
@@ -616,6 +673,46 @@ canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
+
+    // Handle ball-in-hand placement
+    if (isBallInHand && !ballsAreMoving()) {
+        let isPlacementValid = true;
+        // Check for overlap with other balls
+        for (const ball of balls) {
+            const dist = Math.sqrt((clickX - ball.x)**2 + (clickY - ball.y)**2);
+            if (dist < cueBall.radius + ball.radius) {
+                isPlacementValid = false;
+                break;
+            }
+        }
+        // Check for overlap with table edges
+        if (clickX - cueBall.radius < 0 || clickX + cueBall.radius > canvas.width ||
+            clickY - cueBall.radius < 0 || clickY + cueBall.radius > canvas.height) {
+            isPlacementValid = false;
+        }
+
+        // Check for overlap with pockets
+        if (isPlacementValid) {
+            for (const pocket of pockets) {
+                const dist = Math.sqrt((clickX - pocket.x)**2 + (clickY - pocket.y)**2);
+                if (dist < POCKET_RADIUS + cueBall.radius) {
+                    isPlacementValid = false;
+                    break;
+                }
+            }
+        }
+
+        if (isPlacementValid) {
+            cueBall.x = clickX;
+            cueBall.y = clickY;
+            cueBall.vx = 0;
+            cueBall.vy = 0;
+            balls.push(cueBall); // Add cue ball back to the simulation
+            isBallInHand = false;
+            updateStatusDisplay();
+        }
+        return; // Prevent starting a shot immediately after placing the ball
+    }
 
     // If it's the player's turn for the 8-ball, their click declares a pocket.
     if (eightBallMode && !ballsAreMoving() && !shotTakenThisTurn) {
