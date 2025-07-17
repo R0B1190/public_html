@@ -24,7 +24,7 @@ class AICookApp {
     bindEvents() {
         this.saveApiKeyBtn.addEventListener('click', () => this.saveApiKey());
         this.generateBtn.addEventListener('click', () => this.generateRecipe());
-        this.apiKeyInput.addEventListener('keypress', () => {
+        this.apiKeyInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.saveApiKey();
             }
@@ -37,7 +37,7 @@ class AICookApp {
     }
 
     saveApiKey() {
-        const apiKey = this.apiKeyInput.ariaValueMax.trim();
+        const apiKey = this.apiKeyInput.value.trim();
         if (apiKey) {
             localStorage.setItem('geminiApiKey', apiKey);
             this.apiKey = apiKey;
@@ -144,4 +144,51 @@ class AICookApp {
         const data = await response.json();
         return data.candidates[0].content.parts[0].text.trim();
     }
+
+    displayRecipe(recipeText){
+        const formattedRecipe = this.formatRecipe(recipeText);
+        this.recipeContent.innerHTML = formattedRecipe;
+        this.showRecipe();
+    }
+
+    showRecipe(){
+        this.recipeSection.classList.add('show');
+        this.recipeSection.scrollIntoView({behavior: 'smooth'});
+    }
+
+    formatRecipe(text){
+        text = text.replace(/(^| ) +/gm,'$1');
+        text = text.replace(/^- */gm,'');
+        text = text.replace(/\*\*(.+?)\*\*/gm,'<strong>$1</strong>');
+        text = text.replace(/^(.+)/g,'<h3 class"recipe-title">$1</h3>');
+        text = text.replace(/^\*/gm,'•');
+        text = text.replace(/^(.+)/gm,'<p>$1</p>');
+        return text;
+    }
+
+    showSuccess(){
+        alert('API Key saved successfully!');
+    }
+
+    showLoading(show){
+        if (show){
+            this.loading.classList.add('show');
+            this.generateBtn.disabled = true;
+            this.generateBtn.textContent = 'Generating...';
+        } else{
+            this.loading.classList.remove('show');
+            this.generateBtn.disabled = false;
+            this.generateBtn.textContent = 'Generate Recipe';
+        }
+    }
+
+    hideRecipe(){
+        this.recipeSection.classList.remove('show');
+    }
+
+    showError(){
+        alert('Recipe failed to generate');
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => new AICookApp());

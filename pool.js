@@ -206,12 +206,31 @@ function drawPockets() {
 function drawCue() {
     if (!shotStart) return;
 
-    const CUE_LENGTH = 400;
-    const CUE_TIP_WIDTH = 5;
-    const CUE_BUTT_WIDTH = 11;
+    // --- Cue Constants & Style ---
+    const CUE_LENGTH = 550;
     const PULLBACK_FACTOR = 0.25;
     const MAX_PULLBACK = 60;
+    
+    // Proportions
+    const TIP_LENGTH = 8;
+    const FERRULE_LENGTH = 15;
+    const GRIP_LENGTH = CUE_LENGTH * 0.4;
+    const SHAFT_LENGTH = CUE_LENGTH - TIP_LENGTH - FERRULE_LENGTH - GRIP_LENGTH;
 
+    // Widths
+    const TIP_WIDTH = 7;
+    const BUTT_WIDTH = 15;
+
+    // Colors
+    const TIP_COLOR = '#603913'; // Dark Leather
+    const FERRULE_COLOR = '#f0f0f0'; // Off-white
+    const SHAFT_WOOD_LIGHT = '#f2e2c6'; // Light Maple
+    const SHAFT_WOOD_DARK = '#dcc098'; // Mid Maple
+    const GRIP_DARK_COLOR = '#3d261e'; // Dark Brown/Black
+    const GRIP_LIGHT_COLOR = '#593d2b';
+    const BUMPER_COLOR = '#1c1c1c'; // Black Rubber
+
+    // --- Calculations ---
     // Point the cue from the mouse towards the ball
     const dx = cueBall.x - mouse.x;
     const dy = cueBall.y - mouse.y;
@@ -220,26 +239,88 @@ function drawCue() {
 
     const pullback = Math.min(distance * PULLBACK_FACTOR, MAX_PULLBACK);
 
+    // --- Drawing ---
     ctx.save();
     ctx.translate(cueBall.x, cueBall.y);
     ctx.rotate(angle);
 
-    const cueTipX = -(BALL_RADIUS + pullback);
-    const cueButtX = cueTipX - CUE_LENGTH;
+    // The cue is drawn "behind" the ball. If the ball is against a cushion,
+    // "behind" can be outside the canvas, making the cue invisible. This logic
+    // calculates the space available behind the ball and clamps the cue's
+    // position to ensure it's always drawn within the visible table area.
+    const cosAngle = Math.cos(angle);
+    const sinAngle = Math.sin(angle);
 
-    // Draw main shaft (light wood)
+    // Vector pointing away from the shot direction (where the cue stick is)
+    const rearVecX = -cosAngle;
+    const rearVecY = -sinAngle;
+
+    let distToBoundary = Infinity;
+
+    // Calculate distance to walls along the cue's direction
+    if (rearVecX > 1e-6) { // Aiming left, rear is right wall
+        distToBoundary = Math.min(distToBoundary, (canvas.width - cueBall.x) / rearVecX);
+    } else if (rearVecX < -1e-6) { // Aiming right, rear is left wall
+        distToBoundary = Math.min(distToBoundary, (0 - cueBall.x) / rearVecX);
+    }
+    if (rearVecY > 1e-6) { // Aiming up, rear is bottom wall
+        distToBoundary = Math.min(distToBoundary, (canvas.height - cueBall.y) / rearVecY);
+    } else if (rearVecY < -1e-6) { // Aiming down, rear is top wall
+        distToBoundary = Math.min(distToBoundary, (0 - cueBall.y) / rearVecY);
+    }
+
+    const desiredOffset = BALL_RADIUS + 5 + pullback;
+    const clampedOffset = Math.min(desiredOffset, Math.max(0, distToBoundary - 1)); // -1 for margin
+    let currentX = -clampedOffset;
+
+    // Helper to get the width of the cue at a specific distance from the tip.
+    const getWidthAt = (distFromTip) => {
+        return TIP_WIDTH + (BUTT_WIDTH - TIP_WIDTH) * (distFromTip / CUE_LENGTH);
+    };
+
+    // Helper to draw a tapered section of the cue.
+    const drawSection = (length, startX, startWidth, endWidth, style) => {
+        const endX = startX - length;
+        ctx.beginPath();
+        ctx.moveTo(startX, -startWidth / 2);
+        ctx.lineTo(endX, -endWidth / 2);
+        ctx.lineTo(endX, endWidth / 2);
+        ctx.lineTo(startX, startWidth / 2);
+        ctx.closePath();
+        ctx.fillStyle = style;
+        ctx.fill();
+        return endX; // Return the new end position for the next section
+    };
+
+    // 1. Tip
+    const tipEndWidth = getWidthAt(TIP_LENGTH);
+    let nextX = drawSection(TIP_LENGTH, currentX, TIP_WIDTH, tipEndWidth, TIP_COLOR);
+
+    // 2. Ferrule
+    const ferruleEndWidth = getWidthAt(TIP_LENGTH + FERRULE_LENGTH);
+    nextX = drawSection(FERRULE_LENGTH, nextX, tipEndWidth, ferruleEndWidth, FERRULE_COLOR);
+
+    // 3. Shaft
+    const shaftGradient = ctx.createLinearGradient(0, -BUTT_WIDTH, 0, BUTT_WIDTH);
+    shaftGradient.addColorStop(0, SHAFT_WOOD_LIGHT);
+    shaftGradient.addColorStop(0.5, SHAFT_WOOD_DARK);
+    shaftGradient.addColorStop(1, SHAFT_WOOD_LIGHT);
+    const shaftEndWidth = getWidthAt(TIP_LENGTH + FERRULE_LENGTH + SHAFT_LENGTH);
+    nextX = drawSection(SHAFT_LENGTH, nextX, ferruleEndWidth, shaftEndWidth, shaftGradient);
+
+    // 4. Grip
+    const gripGradient = ctx.createLinearGradient(0, -BUTT_WIDTH, 0, BUTT_WIDTH);
+    gripGradient.addColorStop(0, GRIP_LIGHT_COLOR);
+    gripGradient.addColorStop(0.5, GRIP_DARK_COLOR);
+    gripGradient.addColorStop(1, GRIP_LIGHT_COLOR);
+    const gripEndWidth = getWidthAt(CUE_LENGTH); // This is just BUTT_WIDTH
+    nextX = drawSection(GRIP_LENGTH, nextX, shaftEndWidth, gripEndWidth, gripGradient);
+
+    // 5. Bumper
     ctx.beginPath();
-    ctx.moveTo(cueTipX, -CUE_TIP_WIDTH / 2);
-    ctx.lineTo(cueButtX, -CUE_BUTT_WIDTH / 2);
-    ctx.lineTo(cueButtX, CUE_BUTT_WIDTH / 2);
-    ctx.lineTo(cueTipX, CUE_TIP_WIDTH / 2);
-    ctx.closePath();
-    ctx.fillStyle = '#d2b48c'; // Tan
+    ctx.arc(nextX, 0, gripEndWidth / 2, Math.PI * 1.5, Math.PI * 0.5, false);
+    ctx.fillStyle = BUMPER_COLOR;
     ctx.fill();
-
-    // Draw grip (darker part)
-    ctx.fillStyle = '#654321'; // Dark brown
-    ctx.fillRect(cueButtX, -CUE_BUTT_WIDTH / 2, CUE_LENGTH * 0.4, CUE_BUTT_WIDTH);
 
     ctx.restore();
 }
@@ -589,8 +670,21 @@ function gameLoop() {
 
     // Drawing order is important for layering
     drawAimingLine();
-    drawCue();
-    balls.forEach(ball => ball.draw());
+
+    // We draw object balls first, then the cue, then the cue ball on top.
+    // This makes the cue appear to go over other balls but still be correctly
+    // positioned behind the cue ball.
+    balls.forEach(ball => {
+        if (ball !== cueBall) { // Draw all balls except the cue ball
+            ball.draw();
+        }
+    });
+
+    drawCue(); // Now draw the cue on top of the object balls
+
+    if (balls.includes(cueBall)) { // Finally, draw the cue ball on top of the cue
+        cueBall.draw();
+    }
 
     if (isBallInHand) {
         // Draw cue ball at mouse position with visual feedback for valid placement.
